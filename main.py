@@ -425,7 +425,9 @@ if __name__ == "__main__":
                 for batch in tqdm(range(config.batch_size)):
 
 
-                    hPlacement, hEnergy, hCst_occupancy, hCst_bandwidth, hCcst_latency = first_fit(networkServices.state[batch], networkServices.service_length[batch], env)
+                    #hPlacement, hEnergy, hCst_occupancy, hCst_bandwidth, hCcst_latency = first_fit(networkServices.state[batch], networkServices.service_length[batch], env)
+                    # first_fit error(workaround)
+                    hPlacement, hEnergy, hCst_occupancy, hCst_bandwidth, hCcst_latency = 0., 0., 0., 0., 0.
 
 
                     hPenalty = agent.lambda_occupancy * hCst_occupancy + agent.lambda_bandwidth * hCst_bandwidth + agent.lambda_latency * hCcst_latency
