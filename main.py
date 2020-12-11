@@ -37,58 +37,62 @@ def print_trainable_parameters():
     print('Total_parameters: ', total_parameters)
 
 
-def calculate_reward(env, networkServices, placement, num_samples):
-    """ Evaluate the batch of states into the environmnet """
 
-    lagrangian = np.zeros(config.batch_size)
-    penalty = np.zeros(config.batch_size)
-    reward = np.zeros(config.batch_size)
-    constraint_occupancy = np.zeros(config.batch_size)
-    constraint_bandwidth = np.zeros(config.batch_size)
-    constraint_latency = np.zeros(config.batch_size)
 
-    reward_sampling = np.zeros(num_samples)
-    constraint_occupancy_sampling = np.zeros(num_samples)
-    constraint_bandwidth_sampling = np.zeros(num_samples)
-    constraint_latency_sampling = np.zeros(num_samples)
+def app(config):
 
-    indices = np.zeros(config.batch_size)
+    def calculate_reward(env, networkServices, placement, num_samples):
+        """ Evaluate the batch of states into the environmnet """
 
-    # Compute environment
-    for batch in range(config.batch_size):
-        for sample in range(num_samples):
-            env.clear()
-            env.step(networkServices.service_length[batch], networkServices.state[batch], placement[sample][batch])
-            reward_sampling[sample] = env.reward
-            constraint_occupancy_sampling[sample] = env.constraint_occupancy
-            constraint_bandwidth_sampling[sample] = env.constraint_bandwidth
-            constraint_latency_sampling[sample] = env.constraint_latency
+        lagrangian = np.zeros(config.batch_size)
+        penalty = np.zeros(config.batch_size)
+        reward = np.zeros(config.batch_size)
+        constraint_occupancy = np.zeros(config.batch_size)
+        constraint_bandwidth = np.zeros(config.batch_size)
+        constraint_latency = np.zeros(config.batch_size)
 
-        penalty_sampling = agent.lambda_occupancy * constraint_occupancy_sampling + agent.lambda_bandwidth * constraint_bandwidth_sampling + agent.lambda_latency * constraint_latency_sampling
-        lagrangian_sampling = reward_sampling + penalty_sampling
+        reward_sampling = np.zeros(num_samples)
+        constraint_occupancy_sampling = np.zeros(num_samples)
+        constraint_bandwidth_sampling = np.zeros(num_samples)
+        constraint_latency_sampling = np.zeros(num_samples)
 
-        index = np.argmin(lagrangian_sampling)
+        indices = np.zeros(config.batch_size)
 
-        lagrangian[batch] = lagrangian_sampling[index]
-        penalty[batch] = penalty_sampling[index]
-        reward[batch] = reward_sampling[index]
+        # Compute environment
+        for batch in range(config.batch_size):
+            for sample in range(num_samples):
+                env.clear()
+                env.step(networkServices.service_length[batch], networkServices.state[batch], placement[sample][batch])
+                reward_sampling[sample] = env.reward
+                constraint_occupancy_sampling[sample] = env.constraint_occupancy
+                constraint_bandwidth_sampling[sample] = env.constraint_bandwidth
+                constraint_latency_sampling[sample] = env.constraint_latency
 
-        constraint_occupancy[batch] = constraint_occupancy_sampling[index]
-        constraint_bandwidth[batch] = constraint_bandwidth_sampling[index]
-        constraint_latency[batch] = constraint_latency_sampling[index]
+            penalty_sampling = agent.lambda_occupancy * constraint_occupancy_sampling + agent.lambda_bandwidth * constraint_bandwidth_sampling + agent.lambda_latency * constraint_latency_sampling
+            lagrangian_sampling = reward_sampling + penalty_sampling
 
-        indices[batch] = index
+            index = np.argmin(lagrangian_sampling)
 
-    return lagrangian, penalty, reward, constraint_occupancy, constraint_bandwidth, constraint_latency, indices
+            lagrangian[batch] = lagrangian_sampling[index]
+            penalty[batch] = penalty_sampling[index]
+            reward[batch] = reward_sampling[index]
 
-if __name__ == "__main__":
+            constraint_occupancy[batch] = constraint_occupancy_sampling[index]
+            constraint_bandwidth[batch] = constraint_bandwidth_sampling[index]
+            constraint_latency[batch] = constraint_latency_sampling[index]
+
+            indices[batch] = index
+
+        return lagrangian, penalty, reward, constraint_occupancy, constraint_bandwidth, constraint_latency, indices
 
     """ Log """
     logging.basicConfig(level=logging.DEBUG)  # filename='example.log'
     # DEBUG, INFO, WARNING, ERROR, CRITICAL
 
     """ Configuration """
-    config, _ = get_config()
+    # get config from params, if not, retrieve it directly
+    if not config:
+        config, _ = get_config()
 
     """ Environment """
     env = Environment(config.num_cpus, config.num_vnfd, config.env_profile)
@@ -187,7 +191,7 @@ if __name__ == "__main__":
 
                     # Update our value estimator
                     feed_dict_ve = {agent.input_: networkServices.state,
-                                 agent.valueEstimator.target: lagrangian}
+                                    agent.valueEstimator.target: lagrangian}
 
                     _, loss = sess.run([agent.valueEstimator.train_op, agent.valueEstimator.loss], feed_dict_ve)
 
@@ -259,6 +263,8 @@ if __name__ == "__main__":
             if config.save_model:
                 save_path = saver.save(sess, "{}/tf_placement.ckpt".format(config.save_to))
                 print("\nModel saved in file: %s" % save_path)
+
+            sess.close()
 
         else:
             """
@@ -478,3 +484,19 @@ if __name__ == "__main__":
                         writer.writerow(csvData)
 
                     csvFile.close()
+
+    # session complete and reset graphing
+    tf.reset_default_graph()
+
+
+if __name__ == "__main__":
+
+    config, _ = get_config()
+    path = config.save_to
+
+    # list all runs and execute
+    for i in range(config.num_runs):
+        config.save_to = path + str(i)
+        app(config)
+
+
