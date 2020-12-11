@@ -20,7 +20,7 @@ from first_fit import *
 
 """ Globals """
 DEBUG = True
-
+FL_DEBUG = True
 
 def print_trainable_parameters():
     """ Calculate the number of weights """
@@ -133,138 +133,152 @@ def app(config):
                 Learning
             """
 
-            # Restore model
-            if config.load_model:
-                saver.restore(sess, "{}/tf_placement.ckpt".format(config.load_from))
-                print("\nModel restored.")
+            # running in cycles, cycle = 5
+            num_cycle = 5
+            cycle_len = int(config.num_epoch/num_cycle)
+
+            for cycle_idx  in range(num_cycle):
+                """
+                      cycle
+                """
+                epoch_cycle_start = cycle_idx * cycle_len
+
+                epoch_cycle_end = epoch_cycle_start + cycle_len
+                if epoch_cycle_start + cycle_len*2 > num_cycle:
+                    epoch_cycle_end = config.num_epoch
+
+                # Restore model
+
+                if FL_DEBUG or config.load_model:
+                    if cycle_idx > 0:
+                        saver.restore(sess, "{}/tf_placement.ckpt".format(config.load_from))
+                        print("\nModel restored.")
 
 
-            # Summary writer
-            writer = tf.summary.FileWriter("summary/repo", sess.graph)
+                # Summary writer
+                writer = tf.summary.FileWriter("summary/repo", sess.graph)
 
-            if config.save_model:
-                filePath = "{}/learning_history.csv".format(config.save_to)
+                if config.save_model:
+                    filePath = "{}/learning_history.csv".format(config.save_to)
 
-                if not os.path.exists(os.path.dirname(filePath)):
-                    os.makedirs(os.path.dirname(filePath))
+                    if not os.path.exists(os.path.dirname(filePath)):
+                        os.makedirs(os.path.dirname(filePath))
 
-                if os.path.exists(filePath) and not config.load_model:
-                    os.remove(filePath)
+                    if os.path.exists(filePath) and not config.load_model:
+                        os.remove(filePath)
 
-            print("\nStart learning...")
+                print("\nStart learning...")
 
-            try:
-                episode = 0
-                for episode in range(config.num_epoch):
+                try:
+                    episode = 0
+                    for episode in range(epoch_cycle_start, epoch_cycle_end):
 
-                    # New batch of states
-                    networkServices.getNewState()
+                        # New batch of states
+                        networkServices.getNewState()
 
-                    # Mask
-                    mask = np.zeros((config.batch_size,config.max_length))
-                    for i in range(config.batch_size):
-                        for j in range(networkServices.service_length[i], config.max_length):
-                            mask[i, j] = 1
+                        # Mask
+                        mask = np.zeros((config.batch_size,config.max_length))
+                        for i in range(config.batch_size):
+                            for j in range(networkServices.service_length[i], config.max_length):
+                                mask[i, j] = 1
 
-                    # RL Learning
-                    feed = {agent.input_: networkServices.state,
-                            agent.input_len_: [item for item in networkServices.service_length],
-                            agent.mask: mask}
+                        # RL Learning
+                        feed = {agent.input_: networkServices.state,
+                                agent.input_len_: [item for item in networkServices.service_length],
+                                agent.mask: mask}
 
-                    # Run placement
-                    placement, decoder_softmax, _, baseline = sess.run([agent.actor.decoder_exploration, agent.actor.decoder_softmax, agent.actor.attention_plot, agent.valueEstimator.value_estimate], feed_dict=feed)
-                    # positions, attention_plot = sess.run([agent.actor.positions, agent.actor.attention_plot], feed_dict=feed)
+                        # Run placement
+                        placement, decoder_softmax, _, baseline = sess.run([agent.actor.decoder_exploration, agent.actor.decoder_softmax, agent.actor.attention_plot, agent.valueEstimator.value_estimate], feed_dict=feed)
+                        # positions, attention_plot = sess.run([agent.actor.positions, agent.actor.attention_plot], feed_dict=feed)
 
-                    # Interact with the environment to return reward
-                    lagrangian, penalty, reward, constraint_occupancy, constraint_bandwidth, constraint_latency, indices = calculate_reward(env, networkServices, placement, 1)
+                        # Interact with the environment to return reward
+                        lagrangian, penalty, reward, constraint_occupancy, constraint_bandwidth, constraint_latency, indices = calculate_reward(env, networkServices, placement, 1)
 
-                    placement_ = np.zeros((config.batch_size, config.max_length))
-                    for batch in range(config.batch_size):
-                        placement_[batch] = placement[int(indices[batch])][batch]
+                        placement_ = np.zeros((config.batch_size, config.max_length))
+                        for batch in range(config.batch_size):
+                            placement_[batch] = placement[int(indices[batch])][batch]
 
-                    feed = {agent.placement_holder: placement_,
-                            agent.input_: networkServices.state,
-                            agent.input_len_: [item for item in networkServices.service_length],
-                            agent.mask: mask,
-                            agent.baseline_holder: baseline,
-                            agent.lagrangian_holder: [item for item in lagrangian]}
+                        feed = {agent.placement_holder: placement_,
+                                agent.input_: networkServices.state,
+                                agent.input_len_: [item for item in networkServices.service_length],
+                                agent.mask: mask,
+                                agent.baseline_holder: baseline,
+                                agent.lagrangian_holder: [item for item in lagrangian]}
 
-                    # Update our value estimator
-                    feed_dict_ve = {agent.input_: networkServices.state,
-                                    agent.valueEstimator.target: lagrangian}
+                        # Update our value estimator
+                        feed_dict_ve = {agent.input_: networkServices.state,
+                                        agent.valueEstimator.target: lagrangian}
 
-                    _, loss = sess.run([agent.valueEstimator.train_op, agent.valueEstimator.loss], feed_dict_ve)
+                        _, loss = sess.run([agent.valueEstimator.train_op, agent.valueEstimator.loss], feed_dict_ve)
 
-                    # Update actor
-                    summary, _, loss_rl = sess.run([agent.merged, agent.train_step, agent.loss_rl], feed_dict=feed)
+                        # Update actor
+                        summary, _, loss_rl = sess.run([agent.merged, agent.train_step, agent.loss_rl], feed_dict=feed)
 
-                    # Print learning
-                    if episode == 0 or episode % 100 == 0:
+                        # Print learning
+                        if episode == 0 or episode % 100 == 0:
 
-                        print("------------")
-                        print("Episode: ", episode)
-                        print("Minibatch loss: ", loss_rl)
-                        print("Network service[batch0]: ", networkServices.state[0])
-                        print("Len[batch0]", networkServices.service_length[0])
-                        print("Placement[batch0]: ", placement_[0])
+                            print("------------")
+                            print("Episode: ", episode)
+                            print("Minibatch loss: ", loss_rl)
+                            print("Network service[batch0]: ", networkServices.state[0])
+                            print("Len[batch0]", networkServices.service_length[0])
+                            print("Placement[batch0]: ", placement_[0])
 
-                        # agent.actor.plot_attention(attention_plot[0])
-                        # print("prob:", decoder_softmax[0][0])
-                        # print("prob:", decoder_softmax[0][1])
-                        # print("prob:", decoder_softmax[0][2])
+                            # agent.actor.plot_attention(attention_plot[0])
+                            # print("prob:", decoder_softmax[0][0])
+                            # print("prob:", decoder_softmax[0][1])
+                            # print("prob:", decoder_softmax[0][2])
 
-                        print("Baseline[batch0]: ", baseline[0])
-                        print("Reward[batch0]: ", reward[0])
-                        print("Penalty[batch0]: ", penalty[0])
-                        print("Lagrangian[batch0]: ", lagrangian[0])
+                            print("Baseline[batch0]: ", baseline[0])
+                            print("Reward[batch0]: ", reward[0])
+                            print("Penalty[batch0]: ", penalty[0])
+                            print("Lagrangian[batch0]: ", lagrangian[0])
 
-                        print("Value Estimator loss: ", np.mean(loss))
-                        print("Mean penalty: ", np.mean(penalty))
-                        print("Count_nonzero: ", np.count_nonzero(penalty))
+                            print("Value Estimator loss: ", np.mean(loss))
+                            print("Mean penalty: ", np.mean(penalty))
+                            print("Count_nonzero: ", np.count_nonzero(penalty))
 
-                    if episode % 10 == 0:
+                        if episode % 10 == 0:
 
-                        # Save in summary
-                        writer.add_summary(summary, episode)
+                            # Save in summary
+                            writer.add_summary(summary, episode)
 
-                    if config.save_model and (episode == 0 or episode % 100 == 0):
+                        if config.save_model and (episode == 0 or episode % 100 == 0):
 
-                        # Save in csv
-                        csvData = ['batch: {}'.format(episode),
-                                   ' network_service[batch 0]: {}'.format(networkServices.state[0]),
-                                   ' placement[batch 0]: {}'.format(placement_[0]),
-                                   ' reward: {}'.format(np.mean(reward)),
-                                   ' lagrangian: {}'.format(np.mean(lagrangian)),
-                                   ' baseline: {}'.format(np.mean(baseline)),
-                                   ' advantage: {}'.format(np.mean(lagrangian) - np.mean(baseline)),
-                                   ' penalty: {}'.format(np.mean(penalty)),
-                                   ' minibatch_loss: {}'.format(loss_rl)]
+                            # Save in csv
+                            csvData = ['batch: {}'.format(episode),
+                                       ' network_service[batch 0]: {}'.format(networkServices.state[0]),
+                                       ' placement[batch 0]: {}'.format(placement_[0]),
+                                       ' reward: {}'.format(np.mean(reward)),
+                                       ' lagrangian: {}'.format(np.mean(lagrangian)),
+                                       ' baseline: {}'.format(np.mean(baseline)),
+                                       ' advantage: {}'.format(np.mean(lagrangian) - np.mean(baseline)),
+                                       ' penalty: {}'.format(np.mean(penalty)),
+                                       ' minibatch_loss: {}'.format(loss_rl)]
 
-                        filePath = "{}/learning_history.csv".format(config.save_to)
-                        with open(filePath, 'a') as csvFile:
-                            writer2 = csv.writer(csvFile)
-                            writer2.writerow(csvData)
+                            filePath = "{}/learning_history.csv".format(config.save_to)
+                            with open(filePath, 'a') as csvFile:
+                                writer2 = csv.writer(csvFile)
+                                writer2.writerow(csvData)
 
-                        csvFile.close()
+                            csvFile.close()
 
-                    # Save intermediary model variables
-                    if config.save_model and episode % max(1, int(config.num_epoch / 5)) == 0 and episode != 0:
-                        save_path = saver.save(sess, "{}/tmp.ckpt".format(config.save_to), global_step=episode)
-                        print("\nModel saved in file: %s" % save_path)
+                        # Save intermediary model variables
+                        if config.save_model and episode % max(1, int(config.num_epoch / 5)) == 0 and episode != 0:
+                            save_path = saver.save(sess, "{}/tmp.ckpt".format(config.save_to), global_step=episode)
+                            print("\nModel saved in file: %s" % save_path)
 
-                    episode += 1
+                        episode += 1
 
-                print("\nLearning COMPLETED!")
+                    print("\nLearning COMPLETED!")
 
-            except KeyboardInterrupt:
-                print("\nLearning interrupted by user.")
+                except KeyboardInterrupt:
+                    print("\nLearning interrupted by user.")
 
-            # Save model
-            if config.save_model:
-                save_path = saver.save(sess, "{}/tf_placement.ckpt".format(config.save_to))
-                print("\nModel saved in file: %s" % save_path)
-
-            sess.close()
+                # Save model
+                if config.save_model:
+                    save_path = saver.save(sess, "{}/tf_placement.ckpt".format(config.save_to))
+                    print("\nModel saved in file: %s" % save_path)
 
         else:
             """
