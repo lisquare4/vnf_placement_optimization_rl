@@ -1,1 +1,1 @@
- --learn_mode=True --save_model=True --save_to=save/fl_1 --num_epoch=2000 --min_length=12 --max_length=12 --num_layers=1 --hidden_dim=32 --num_cpus=10 --env_profile="small_default"
+--num_runs=3 --learn_mode=True --save_model=True --load_mode=True --save_to=save/fl_ --num_epoch=500 --min_length=12 --max_length=12 --num_layers=1 --hidden_dim=32 --num_cpus=10 --env_profile="small_default"

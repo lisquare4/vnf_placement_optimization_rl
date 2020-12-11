@@ -151,7 +151,7 @@ def app(config):
 
                 if FL_DEBUG or config.load_model:
                     if cycle_idx > 0:
-                        saver.restore(sess, "{}/tf_placement.ckpt".format(config.load_from))
+                        saver.restore(sess, "./{}/tf_placement.ckpt".format(config.load_from))
                         print("\nModel restored.")
 
 
@@ -277,7 +277,7 @@ def app(config):
 
                 # Save model
                 if config.save_model:
-                    save_path = saver.save(sess, "{}/tf_placement.ckpt".format(config.save_to))
+                    save_path = saver.save(sess, "./{}/tf_placement.ckpt".format(config.save_to))
                     print("\nModel saved in file: %s" % save_path)
 
         else:
