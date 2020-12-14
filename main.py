@@ -123,6 +123,11 @@ def learning(sess, config, env, networkServices, agent, saver):
         # Restore model
         if cycle_idx> 0 and tf_variables:
             #TODO assign tf_variables to model
+            ops = [] # serie of ops to update global variables from old to new
+            for item_idx in range(len(tf_variables)):
+                ops.append(tf.global_variables()[item_idx].assign(tf_variables[item_idx]))
+            sess.run(ops)
+
             print("\nModel restored from global variables.")
 
         # Summary writer
@@ -252,7 +257,7 @@ def learning(sess, config, env, networkServices, agent, saver):
 
         # current model variables_to_save
         variables_to_save = [v for v in tf.global_variables() if 'Adam' not in v.name]
-        values_to_save = [v.evel() for v in variables_to_save]
+        values_to_save = [v.eval() for v in variables_to_save]
 
         return values_to_save
 
@@ -270,14 +275,15 @@ def learning(sess, config, env, networkServices, agent, saver):
         weight_list = []
         for run_idx in range(num_runs):
             weight_list.append(
-                learning_cycle_run(weight_ave, cycle_idx=cycle_idx, run_idx=run_idx)
+                learning_cycle_run(cycle_idx, run_idx, weight_ave)
             )
+
         # 2. FL average model parameters(weights)
-            weight_sum = weight_list[0]
-            for weight_of_run in weight_list:
-                for item_idx in range(1, len(weight_sum)):
-                    weight_sum[item_idx] = np.add(weight_sum[item_idx], weight_list[item_idx])
-            weight_ave = [np.divide(i, num_runs) for i in weight_sum]
+        weight_sum = weight_list[0]
+        for weight_run_idx in range(1, len(weight_list)):
+            for item_idx in range(len(weight_sum)):
+                weight_sum[item_idx] = np.add(weight_sum[item_idx], weight_list[weight_run_idx][item_idx])
+        weight_ave = [np.divide(i, num_runs) for i in weight_sum]
 
 
 
