@@ -21,6 +21,8 @@ from first_fit import *
 """ Globals """
 DEBUG = True
 FL_DEBUG = True
+TEST_VNF_FL = True
+TEST_VNF = True
 
 
 def print_trainable_parameters():
@@ -302,144 +304,312 @@ def inference(sess, config, env, networkServices, agent, saver):
         for j in range(networkServices.service_length[i], config.max_length):
             mask[i, j] = 1
 
+    """
+        TEST VNF FL
+    """
+    fl_reward_t = []
+    fl_placement_t = []
+    fl_penalty_t = []
+    fl_constraint_occupancy_t = []
+    fl_constraint_bandwidth_t = []
+    fl_constraint_latency_t = []
+
+    if TEST_VNF_FL:
     # Count the number of models "m" used in the active search: model_1, model_2 ...
-    m = 0
-    while os.path.exists("{}_{}".format(config.load_from, m + 1)):  m += 1
+        m = 0
+        while os.path.exists("{}_{}".format(config.fl_load_from, m + 1)):  m += 1
 
-    placement_m = [[]] * m
-    placement_temp_m = [[]] * m
+        placement_m = [[]] * m
+        placement_temp_m = [[]] * m
 
-    penalty_m = [0] * m
-    penalty_temp_m = [0] * m
+        penalty_m = [0] * m
+        penalty_temp_m = [0] * m
 
-    lagrangian_m = [0] * m
-    lagrangian_temp_m = [0] * m
+        lagrangian_m = [0] * m
+        lagrangian_temp_m = [0] * m
 
-    reward_m = [0] * m
-    reward_temp_m = [0] * m
+        reward_m = [0] * m
+        reward_temp_m = [0] * m
 
-    constraint_occupancy_m = [0] * m
-    constraint_occupancy_temp_m = [0] * m
+        constraint_occupancy_m = [0] * m
+        constraint_occupancy_temp_m = [0] * m
 
-    constraint_bandwidth_m = [0] * m
-    constraint_bandwidth_temp_m = [0] * m
+        constraint_bandwidth_m = [0] * m
+        constraint_bandwidth_temp_m = [0] * m
 
-    constraint_latency_m = [0] * m
-    constraint_latency_temp_m = [0] * m
+        constraint_latency_m = [0] * m
+        constraint_latency_temp_m = [0] * m
 
-    for i in range(m):
-        # Restore variables from disk
+        for i in range(m):
+            # Restore variables from disk
 
-        saver.restore(sess, "{}_{}/tf_placement.ckpt".format(config.load_from, i + 1))
-        print("Model restored.")
+            saver.restore(sess, "{}_{}/tf_placement.ckpt".format(config.fl_load_from, i + 1))
+            print("Model restored.")
 
-        # Compute placement
-        feed = {agent.input_: networkServices.state,
-                agent.input_len_: [item for item in networkServices.service_length], agent.mask: mask}
+            # Compute placement
+            feed = {agent.input_: networkServices.state,
+            agent.input_len_: [item for item in networkServices.service_length], agent.mask: mask}
 
-        placement_temp, placement, decoder_softmax_temp, decoder_softmax = sess.run \
+            placement_temp, placement, decoder_softmax_temp, decoder_softmax = sess.run \
             ([agent.actor.decoder_sampling, agent.actor.decoder_prediction, agent.actor.decoder_softmax_temp,
-              agent.actor.decoder_softmax], feed_dict=feed)
+            agent.actor.decoder_softmax], feed_dict=feed)
 
-        # Interact with the environment with greedy placement
-        lagrangian, penalty, reward, constraint_occupancy, constraint_bandwidth, constraint_latency, _ = calculate_reward(
+            # Interact with the environment with greedy placement
+            lagrangian, penalty, reward, constraint_occupancy, constraint_bandwidth, constraint_latency, _ = calculate_reward(
             env, networkServices, placement, 1, agent)
 
-        # Interact with the environment with sampling technique
-        lagrangian_temp, penalty_temp, reward_temp, constraint_occupancy_temp, constraint_bandwidth_temp, constraint_latency_temp, indices = calculate_reward(
+            # Interact with the environment with sampling technique
+            lagrangian_temp, penalty_temp, reward_temp, constraint_occupancy_temp, constraint_bandwidth_temp, constraint_latency_temp, indices = calculate_reward(
             env, networkServices, placement_temp, agent.actor.samples, agent)
 
-        # Store the output of each model
-        placement_m[i] = placement
+            # Store the output of each model
+            placement_m[i] = placement
+            for batch in range(config.batch_size):
+                placement_temp_m[i].append(placement_temp[int(indices[batch])][batch])
+
+            penalty_m[i] = penalty
+            penalty_temp_m[i] = penalty_temp
+
+            print("Errors model ", i, ":", np.count_nonzero(penalty_m[i]), "/", config.batch_size)
+            print("Errors model temperature ", i, ":", np.count_nonzero(penalty_temp_m[i]), "/", config.batch_size)
+
+            lagrangian_m[i] = lagrangian
+            lagrangian_temp_m[i] = lagrangian_temp
+
+            reward_m[i] = reward
+            reward_temp_m[i] = reward_temp
+
+            constraint_occupancy_m[i] = constraint_occupancy
+            constraint_occupancy_temp_m[i] = constraint_occupancy_temp
+
+            constraint_bandwidth_m[i] = constraint_bandwidth
+            constraint_bandwidth_temp_m[i] = constraint_bandwidth_temp
+
+            constraint_latency_m[i] = constraint_latency
+            constraint_latency_temp_m[i] = constraint_latency_temp
+
+        penalty_m = np.vstack(penalty_m)
+        penalty_temp_m = np.vstack(penalty_temp_m)
+
+        lagrangian_m = np.stack(lagrangian_m)
+        lagrangian_temp_m = np.stack(lagrangian_temp_m)
+
+        reward_m = np.stack(reward_m)
+        reward_temp_m = np.stack(reward_temp_m)
+
+        constraint_occupancy_m = np.stack(constraint_occupancy_m)
+        constraint_occupancy_temp_m = np.stack(constraint_occupancy_temp_m)
+
+        constraint_bandwidth_m = np.stack(constraint_bandwidth_m)
+        constraint_bandwidth_temp_m = np.stack(constraint_bandwidth_temp_m)
+
+        constraint_latency_m = np.stack(constraint_latency_m)
+        constraint_latency_temp_m = np.stack(constraint_latency_temp_m)
+
+        index = []
+
+        best_placement = []
+        best_placement_t = []
+        best_lagrangian = []
+        best_lagrangian_t = []
+        best_penalty = []
+        best_penalty_t = []
+        best_reward = []
+        best_reward_t = []
+        best_constraint_occupancy = []
+        best_constraint_occupancy_t = []
+        best_constraint_bandwidth = []
+        best_constraint_bandwidth_t = []
+        best_constraint_latency = []
+        best_constraint_latency_t = []
+
+        # Calculate and store the best model
         for batch in range(config.batch_size):
-            placement_temp_m[i].append(placement_temp[int(indices[batch])][batch])
+            index_l = np.argmin([row[batch] for row in lagrangian_m])
+            index_p = np.argmin([row[batch] for row in penalty_m])
 
-        penalty_m[i] = penalty
-        penalty_temp_m[i] = penalty_temp
+            assert penalty_m[index_l][batch] <= penalty_m[index_p][batch]
 
-        print("Errors model ", i, ":", np.count_nonzero(penalty_m[i]), "/", config.batch_size)
-        print("Errors model temperature ", i, ":", np.count_nonzero(penalty_temp_m[i]), "/", config.batch_size)
+            best_placement.append(placement_m[index_l][0][batch])
+            best_lagrangian.append(lagrangian_m[index_l][batch])
+            best_penalty.append(penalty_m[index_l][batch])
+            best_reward.append(reward_m[index_l][batch])
+            best_constraint_occupancy.append(constraint_occupancy_m[index_l][batch])
+            best_constraint_bandwidth.append(constraint_bandwidth_m[index_l][batch])
+            best_constraint_latency.append(constraint_latency_m[index_l][batch])
 
-        lagrangian_m[i] = lagrangian
-        lagrangian_temp_m[i] = lagrangian_temp
+            # Temperature
 
-        reward_m[i] = reward
-        reward_temp_m[i] = reward_temp
+            index_lt = np.argmin([row[batch] for row in lagrangian_temp_m])
+            index_pt = np.argmin([row[batch] for row in penalty_temp_m])
 
-        constraint_occupancy_m[i] = constraint_occupancy
-        constraint_occupancy_temp_m[i] = constraint_occupancy_temp
+            best_placement_t.append(placement_temp_m[index_l][batch])
+            best_lagrangian_t.append(lagrangian_temp_m[index_l][batch])
+            best_penalty_t.append(penalty_temp_m[index_l][batch])
+            best_reward_t.append(reward_temp_m[index_l][batch])
+            best_constraint_occupancy_t.append(constraint_occupancy_temp_m[index_l][batch])
+            best_constraint_bandwidth_t.append(constraint_bandwidth_temp_m[index_l][batch])
+            best_constraint_latency_t.append(constraint_latency_temp_m[index_l][batch])
 
-        constraint_bandwidth_m[i] = constraint_bandwidth
-        constraint_bandwidth_temp_m[i] = constraint_bandwidth_temp
+        fl_reward_t = best_reward_t
+        fl_placement_t = best_placement_t
+        fl_penalty_t = best_penalty_t
+        fl_constraint_occupancy_t = best_constraint_occupancy_t
+        fl_constraint_bandwidth_t = best_constraint_bandwidth_t
+        fl_constraint_latency_t = best_constraint_latency_t
+        print("Total errors: ", np.count_nonzero(best_penalty), "/", config.batch_size)
+        print("Total errors temperature: ", np.count_nonzero(best_penalty_t), "/", config.batch_size)
 
-        constraint_latency_m[i] = constraint_latency
-        constraint_latency_temp_m[i] = constraint_latency_temp
+    """
+        TEST VNF
+    """
 
-    penalty_m = np.vstack(penalty_m)
-    penalty_temp_m = np.vstack(penalty_temp_m)
-
-    lagrangian_m = np.stack(lagrangian_m)
-    lagrangian_temp_m = np.stack(lagrangian_temp_m)
-
-    reward_m = np.stack(reward_m)
-    reward_temp_m = np.stack(reward_temp_m)
-
-    constraint_occupancy_m = np.stack(constraint_occupancy_m)
-    constraint_occupancy_temp_m = np.stack(constraint_occupancy_temp_m)
-
-    constraint_bandwidth_m = np.stack(constraint_bandwidth_m)
-    constraint_bandwidth_temp_m = np.stack(constraint_bandwidth_temp_m)
-
-    constraint_latency_m = np.stack(constraint_latency_m)
-    constraint_latency_temp_m = np.stack(constraint_latency_temp_m)
-
-    index = []
-
-    best_placement = []
-    best_placement_t = []
-    best_lagrangian = []
-    best_lagrangian_t = []
-    best_penalty = []
-    best_penalty_t = []
-    best_reward = []
     best_reward_t = []
-    best_constraint_occupancy = []
+    best_placement_t = []
+    best_penalty_t = []
     best_constraint_occupancy_t = []
-    best_constraint_bandwidth = []
     best_constraint_bandwidth_t = []
-    best_constraint_latency = []
     best_constraint_latency_t = []
 
-    # Calculate and store the best model
-    for batch in range(config.batch_size):
-        index_l = np.argmin([row[batch] for row in lagrangian_m])
-        index_p = np.argmin([row[batch] for row in penalty_m])
+    if TEST_VNF:
+        # Count the number of models "m" used in the active search: model_1, model_2 ...
+        m = 0
+        while os.path.exists("{}_{}".format(config.load_from, m + 1)):  m += 1
 
-        assert penalty_m[index_l][batch] <= penalty_m[index_p][batch]
+        placement_m = [[]] * m
+        placement_temp_m = [[]] * m
 
-        best_placement.append(placement_m[index_l][0][batch])
-        best_lagrangian.append(lagrangian_m[index_l][batch])
-        best_penalty.append(penalty_m[index_l][batch])
-        best_reward.append(reward_m[index_l][batch])
-        best_constraint_occupancy.append(constraint_occupancy_m[index_l][batch])
-        best_constraint_bandwidth.append(constraint_bandwidth_m[index_l][batch])
-        best_constraint_latency.append(constraint_latency_m[index_l][batch])
+        penalty_m = [0] * m
+        penalty_temp_m = [0] * m
 
-        # Temperature
+        lagrangian_m = [0] * m
+        lagrangian_temp_m = [0] * m
 
-        index_lt = np.argmin([row[batch] for row in lagrangian_temp_m])
-        index_pt = np.argmin([row[batch] for row in penalty_temp_m])
+        reward_m = [0] * m
+        reward_temp_m = [0] * m
 
-        best_placement_t.append(placement_temp_m[index_l][batch])
-        best_lagrangian_t.append(lagrangian_temp_m[index_l][batch])
-        best_penalty_t.append(penalty_temp_m[index_l][batch])
-        best_reward_t.append(reward_temp_m[index_l][batch])
-        best_constraint_occupancy_t.append(constraint_occupancy_temp_m[index_l][batch])
-        best_constraint_bandwidth_t.append(constraint_bandwidth_temp_m[index_l][batch])
-        best_constraint_latency_t.append(constraint_latency_temp_m[index_l][batch])
+        constraint_occupancy_m = [0] * m
+        constraint_occupancy_temp_m = [0] * m
 
-    print("Total errors: ", np.count_nonzero(best_penalty), "/", config.batch_size)
-    print("Total errors temperature: ", np.count_nonzero(best_penalty_t), "/", config.batch_size)
+        constraint_bandwidth_m = [0] * m
+        constraint_bandwidth_temp_m = [0] * m
+
+        constraint_latency_m = [0] * m
+        constraint_latency_temp_m = [0] * m
+
+        for i in range(m):
+            # Restore variables from disk
+
+            saver.restore(sess, "{}_{}/tf_placement.ckpt".format(config.load_from, i + 1))
+            print("Model restored.")
+
+            # Compute placement
+            feed = {agent.input_: networkServices.state,
+                    agent.input_len_: [item for item in networkServices.service_length], agent.mask: mask}
+
+            placement_temp, placement, decoder_softmax_temp, decoder_softmax = sess.run \
+                ([agent.actor.decoder_sampling, agent.actor.decoder_prediction, agent.actor.decoder_softmax_temp,
+                  agent.actor.decoder_softmax], feed_dict=feed)
+
+            # Interact with the environment with greedy placement
+            lagrangian, penalty, reward, constraint_occupancy, constraint_bandwidth, constraint_latency, _ = calculate_reward(
+                env, networkServices, placement, 1, agent)
+
+            # Interact with the environment with sampling technique
+            lagrangian_temp, penalty_temp, reward_temp, constraint_occupancy_temp, constraint_bandwidth_temp, constraint_latency_temp, indices = calculate_reward(
+                env, networkServices, placement_temp, agent.actor.samples, agent)
+
+            # Store the output of each model
+            placement_m[i] = placement
+            for batch in range(config.batch_size):
+                placement_temp_m[i].append(placement_temp[int(indices[batch])][batch])
+
+            penalty_m[i] = penalty
+            penalty_temp_m[i] = penalty_temp
+
+            print("Errors model ", i, ":", np.count_nonzero(penalty_m[i]), "/", config.batch_size)
+            print("Errors model temperature ", i, ":", np.count_nonzero(penalty_temp_m[i]), "/", config.batch_size)
+
+            lagrangian_m[i] = lagrangian
+            lagrangian_temp_m[i] = lagrangian_temp
+
+            reward_m[i] = reward
+            reward_temp_m[i] = reward_temp
+
+            constraint_occupancy_m[i] = constraint_occupancy
+            constraint_occupancy_temp_m[i] = constraint_occupancy_temp
+
+            constraint_bandwidth_m[i] = constraint_bandwidth
+            constraint_bandwidth_temp_m[i] = constraint_bandwidth_temp
+
+            constraint_latency_m[i] = constraint_latency
+            constraint_latency_temp_m[i] = constraint_latency_temp
+
+        penalty_m = np.vstack(penalty_m)
+        penalty_temp_m = np.vstack(penalty_temp_m)
+
+        lagrangian_m = np.stack(lagrangian_m)
+        lagrangian_temp_m = np.stack(lagrangian_temp_m)
+
+        reward_m = np.stack(reward_m)
+        reward_temp_m = np.stack(reward_temp_m)
+
+        constraint_occupancy_m = np.stack(constraint_occupancy_m)
+        constraint_occupancy_temp_m = np.stack(constraint_occupancy_temp_m)
+
+        constraint_bandwidth_m = np.stack(constraint_bandwidth_m)
+        constraint_bandwidth_temp_m = np.stack(constraint_bandwidth_temp_m)
+
+        constraint_latency_m = np.stack(constraint_latency_m)
+        constraint_latency_temp_m = np.stack(constraint_latency_temp_m)
+
+        index = []
+
+        best_placement = []
+        best_placement_t = []
+        best_lagrangian = []
+        best_lagrangian_t = []
+        best_penalty = []
+        best_penalty_t = []
+        best_reward = []
+        best_reward_t = []
+        best_constraint_occupancy = []
+        best_constraint_occupancy_t = []
+        best_constraint_bandwidth = []
+        best_constraint_bandwidth_t = []
+        best_constraint_latency = []
+        best_constraint_latency_t = []
+
+        # Calculate and store the best model
+        for batch in range(config.batch_size):
+            index_l = np.argmin([row[batch] for row in lagrangian_m])
+            index_p = np.argmin([row[batch] for row in penalty_m])
+
+            assert penalty_m[index_l][batch] <= penalty_m[index_p][batch]
+
+            best_placement.append(placement_m[index_l][0][batch])
+            best_lagrangian.append(lagrangian_m[index_l][batch])
+            best_penalty.append(penalty_m[index_l][batch])
+            best_reward.append(reward_m[index_l][batch])
+            best_constraint_occupancy.append(constraint_occupancy_m[index_l][batch])
+            best_constraint_bandwidth.append(constraint_bandwidth_m[index_l][batch])
+            best_constraint_latency.append(constraint_latency_m[index_l][batch])
+
+            # Temperature
+
+            index_lt = np.argmin([row[batch] for row in lagrangian_temp_m])
+            index_pt = np.argmin([row[batch] for row in penalty_temp_m])
+
+            best_placement_t.append(placement_temp_m[index_l][batch])
+            best_lagrangian_t.append(lagrangian_temp_m[index_l][batch])
+            best_penalty_t.append(penalty_temp_m[index_l][batch])
+            best_reward_t.append(reward_temp_m[index_l][batch])
+            best_constraint_occupancy_t.append(constraint_occupancy_temp_m[index_l][batch])
+            best_constraint_bandwidth_t.append(constraint_bandwidth_temp_m[index_l][batch])
+            best_constraint_latency_t.append(constraint_latency_temp_m[index_l][batch])
+
+        print("Total errors: ", np.count_nonzero(best_penalty), "/", config.batch_size)
+        print("Total errors temperature: ", np.count_nonzero(best_penalty_t), "/", config.batch_size)
 
     # Test Gecode solver
     if config.enable_performance:
@@ -483,6 +653,10 @@ def inference(sess, config, env, networkServices, agent, saver):
             print("cstr_occupancy: ", best_constraint_occupancy_t[batch])
             print("cstr_bw: ", best_constraint_bandwidth_t[batch])
             print("cstr_lat: ", best_constraint_latency_t[batch])
+            print("fl_reward: ", fl_reward_t[batch])
+            print("fl_occupancy: ", fl_constraint_occupancy_t[batch])
+            print("fl_bw: ", fl_constraint_bandwidth_t[batch])
+            print("fl_lat: ", fl_constraint_latency_t[batch])
 
             # Save in test.csv
             csvData = [' batch: {}'.format(batch),
@@ -492,9 +666,9 @@ def inference(sess, config, env, networkServices, agent, saver):
                        ' penalty: {}'.format(best_penalty_t[batch]),
                        ' solver_placement: {}'.format(sPlacement),
                        ' solver_reward: {}'.format(sReward[batch]),
-                       ' heuristic_placement: {}'.format(hPlacement),
-                       ' heuristic_reward: {}'.format(hEnergy),
-                       ' heuristic_penalty: {}'.format(hPenalty)]
+                       ' fl_placement: {}'.format(fl_placement_t[batch]),
+                       ' fl_reward: {}'.format(fl_reward_t[batch]),
+                       ' fl_penalty: {}'.format(fl_penalty_t[batch])]
 
             filePath = '{}_test.csv'.format(config.load_from)
             with open(filePath, 'a') as csvFile:
