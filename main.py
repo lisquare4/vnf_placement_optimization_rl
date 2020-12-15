@@ -330,6 +330,9 @@ if __name__ == "__main__":
                 penalty_temp_m[i] = penalty_temp
 
                 print("Errors model ", i, ":", np.count_nonzero(penalty_m[i]), "/", config.batch_size)
+                print("[CPU]Errors", i, ":", np.count_nonzero(constraint_occupancy), "/", config.batch_size)
+                print("[Bandwidth]Errors", i, ":", np.count_nonzero(constraint_bandwidth), "/", config.batch_size)
+                print("[Latency]Errors", i, ":", np.count_nonzero(constraint_latency), "/", config.batch_size)
                 print("Errors model temperature ", i, ":", np.count_nonzero(penalty_temp_m[i]), "/", config.batch_size)
 
                 lagrangian_m[i] = lagrangian

@@ -1,0 +1,2 @@
+python main.py --learn_mode=False --save_model=False --load_model=True --load_from=save/l12b --num_epoch=20000 --min_length=12 --max_length=12 --num_layers=1 --hidden_dim=32 --num_cpus=10 --env_profile="small_default"
+
