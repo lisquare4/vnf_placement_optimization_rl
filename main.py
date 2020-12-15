@@ -101,7 +101,7 @@ def session_preparation():
 
     """ Configure Saver to save & restore model variables """
     variables_to_save = [v for v in tf.global_variables() if 'Adam' not in v.name]
-    saver = tf.train.Saver(var_list=variables_to_save, keep_checkpoint_every_n_hours=1.0)
+    saver = tf.train.Saver(var_list=variables_to_save, max_to_keep=None)
 
     return env, networkServices, agent, saver
 
@@ -116,7 +116,7 @@ def learning(sess, config, env, networkServices, agent, saver):
         """
         epoch_cycle_start = cycle_idx * cycle_len
         epoch_cycle_end = epoch_cycle_start + cycle_len
-        if epoch_cycle_start + cycle_len * 2 > num_cycle:
+        if epoch_cycle_start + cycle_len * 2 > config.num_epoch:
             epoch_cycle_end = config.num_epoch
 
         save_to = config.save_to + str(run_idx)
@@ -124,8 +124,9 @@ def learning(sess, config, env, networkServices, agent, saver):
         if cycle_idx> 0 and tf_variables:
             #TODO assign tf_variables to model
             ops = [] # serie of ops to update global variables from old to new
+            tf_to_save = [v for v in tf.global_variables() if 'Adam' not in v.name]
             for item_idx in range(len(tf_variables)):
-                ops.append(tf.global_variables()[item_idx].assign(tf_variables[item_idx]))
+                ops.append(tf_to_save[item_idx].assign(tf_variables[item_idx]))
             sess.run(ops)
 
             print("\nModel restored from global variables.")
@@ -239,7 +240,7 @@ def learning(sess, config, env, networkServices, agent, saver):
                     csvFile.close()
 
                 # Save intermediary model variables
-                if config.save_model and episode % max(1, int(config.num_epoch / 5)) == 0 and episode != 0:
+                if config.save_model and episode % max(1, int((epoch_cycle_end - epoch_cycle_start)/ 5)) == 0 and episode != 0:
                     save_path = saver.save(sess, "{}/tmp.ckpt".format(save_to), global_step=episode)
                     print("\nModel saved in file: %s" % save_path)
 
@@ -531,7 +532,7 @@ def app(config):
             learning(sess, config, env, networkServices, agent, saver)
 
         else:
-            learning(sess, config, env, networkServices, agent, saver)
+            inference(sess, config, env, networkServices, agent, saver)
 
     # session complete and reset graphing
     tf.reset_default_graph()
