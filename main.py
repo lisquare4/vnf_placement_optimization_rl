@@ -142,8 +142,8 @@ def learning(sess, config, env, networkServices, agent, saver):
             if not os.path.exists(os.path.dirname(filePath)):
                 os.makedirs(os.path.dirname(filePath))
 
-            if os.path.exists(filePath) and not config.load_model:
-                os.remove(filePath)
+            # if os.path.exists(filePath) and not config.load_model:
+            #     os.remove(filePath)
 
         print("\nStart learning...")
 
@@ -242,7 +242,7 @@ def learning(sess, config, env, networkServices, agent, saver):
                     csvFile.close()
 
                 # Save intermediary model variables
-                if config.save_model and episode % max(1, int((epoch_cycle_end - epoch_cycle_start)/ 5)) == 0 and episode != 0:
+                if config.save_model and episode % max(1, epoch_cycle_end - epoch_cycle_start) == 0 and episode != 0:
                     save_path = saver.save(sess, "{}/tmp.ckpt".format(save_to), global_step=episode)
                     print("\nModel saved in file: %s" % save_path)
 
