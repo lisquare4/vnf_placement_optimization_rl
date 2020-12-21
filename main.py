@@ -17,13 +17,13 @@ from tqdm import tqdm
 import csv
 import os
 from first_fit import *
+import math
 
 """ Globals """
 DEBUG = True
 FL_DEBUG = True
 TEST_VNF_FL = True
 TEST_VNF = True
-
 
 def print_trainable_parameters():
     """ Calculate the number of weights """
@@ -116,9 +116,9 @@ def learning(sess, config, env, networkServices, agent, saver):
         """
               cycle
         """
-        epoch_cycle_start = cycle_idx * cycle_len
-        epoch_cycle_end = epoch_cycle_start + cycle_len
-        if epoch_cycle_start + cycle_len * 2 > config.num_epoch:
+        epoch_cycle_start = cycle_idx * cycle_iters
+        epoch_cycle_end = epoch_cycle_start + cycle_iters
+        if epoch_cycle_start + cycle_iters * 2 > config.num_epoch:
             epoch_cycle_end = config.num_epoch
 
         save_to = config.save_to + str(run_idx)
@@ -268,9 +268,9 @@ def learning(sess, config, env, networkServices, agent, saver):
         cycle 5 times, each time contains 5 runs
     """
     # running in cycles, cycle = 5
-    num_cycle = 5
-    num_runs = 5
-    cycle_len = int(config.num_epoch / num_cycle)
+    num_runs = config.num_runs
+    cycle_iters = config.cycle_iters
+    num_cycle = math.ceil(config.num_epoch / cycle_iters)
     weight_ave = None
 
     for cycle_idx in range(num_cycle):

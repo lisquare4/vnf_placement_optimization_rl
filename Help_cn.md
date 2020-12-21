@@ -29,4 +29,16 @@ save/l12b_1/learning_history.csv
 ```shell script
 save/l12b_test.csv
 ```
+4. Parameters
+  1. FL运行的节点数
+```shell script
+--num_runs=5
+# 同时有5个FL节点在进行训练 
+```
+  2. FL周期
+```shell script
+--cycle_iters=1000
+# 每进行1000个iteration/epoch，进行一次FL更新
+```
+
 

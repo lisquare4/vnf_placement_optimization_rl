@@ -48,6 +48,7 @@ perf_arg.add_argument('--enable_performance', type=str2bool, default=False, help
 misc_arg = add_argument_group('User options')
 
 misc_arg.add_argument('--num_runs', type=int, default=5, help='number of runs')
+misc_arg.add_argument('--cycle_iters', type=int, default=1000, help='number of iterations/epoch in a FL cycle')
 misc_arg.add_argument('--learn_mode', type=str2bool, default=False, help='switch to inference mode when model is learned')
 misc_arg.add_argument('--save_model', type=str2bool, default=False, help='save model')
 misc_arg.add_argument('--load_model', type=str2bool, default=False, help='load model')
