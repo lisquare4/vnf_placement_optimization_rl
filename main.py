@@ -289,12 +289,12 @@ def learning(sess, config, env, networkServices, agent, saver):
     for cycle_idx in range(num_cycle):
         # 1. Execute a full cycle
         weight_list = []
-        _weights = []
-        _metrics = []
+        metrics_list = []
 
         for run_idx in range(num_runs):
             _weights, _metrics = learning_cycle_run(cycle_idx, run_idx, weight_ave)
             weight_list.append(_weights)
+            metrics_list.append(_metrics)
 
         # 2. FL average model parameters(weights)
 
@@ -320,41 +320,41 @@ def learning(sess, config, env, networkServices, agent, saver):
         best_penalty_idx= 0
         best_loss_idx = 0
 
-        _best_reward = _metrics[0][0]
-        _best_penalty = _metrics[0][1]
-        _best_loss = _metrics[0][2]
+        _best_reward = metrics_list[0][0]
+        _best_penalty = metrics_list[0][1]
+        _best_loss = metrics_list[0][2]
 
-        for idx in range(_metrics):
+        for idx in range(len(metrics_list)):
             # reward
-            if _best_reward < _metrics[idx][0]:
-                _best_reward = _metrics[idx][0]
+            if _best_reward < metrics_list[idx][0]:
+                _best_reward = metrics_list[idx][0]
                 best_reward_idx = idx
 
             # penalty
-            if _best_penalty < _metrics[idx][1]:
-                _best_penalty = _metrics[idx][1]
+            if _best_penalty < metrics_list[idx][1]:
+                _best_penalty = metrics_list[idx][1]
                 best_penalty_idx = idx
 
             # loss
-            if _best_loss < _metrics[idx][2]:
-                _best_loss = _metrics[idx][2]
+            if _best_loss < metrics_list[idx][2]:
+                _best_loss = metrics_list[idx][2]
                 best_loss_idx = idx
 
         if config.trend_mode == "reward":
             best_reward_coef = config.trend_coef
             for item_idx in range(len(weight_ave)):
                 if weight_map[item_idx]:
-                    weight_ave[item_idx] = weight_list[best_reward_idx] * best_reward_coef
+                    weight_ave[item_idx] = np.multiply(weight_list[best_reward_idx][item_idx], best_reward_coef)
         elif config.trend_mode == "penalty":
             best_penalty_coef = config.trend_coef
             for item_idx in range(len(weight_ave)):
                 if weight_map[item_idx]:
-                    weight_ave[item_idx] = weight_list[best_penalty_idx] * best_penalty_coef
+                    weight_ave[item_idx] = np.multiply(weight_list[best_penalty_idx][item_idx], best_penalty_coef)
         elif config.trend_mode == "loss":
             best_loss_coef = config.trend_coef
             for item_idx in range(len(weight_ave)):
                 if weight_map[item_idx]:
-                    weight_ave[item_idx] = weight_list[best_loss_idx] * best_loss_coef
+                    weight_ave[item_idx] = np.multiply(weight_list[best_loss_idx][item_idx], best_loss_coef)
         else:
             print("[FAIL] Weight trend selection failed")
 

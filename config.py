@@ -47,6 +47,7 @@ perf_arg.add_argument('--enable_performance', type=str2bool, default=False, help
 # Misc
 misc_arg = add_argument_group('User options')
 
+misc_arg.add_argument('--weight_map', type=str, default='actor_all', help="FL's weight selector map(which weight are selected to contribute to FL's weight")
 misc_arg.add_argument('--trend_mode', type=str, default='reward', help="FL's trend to individual run's weights")
 misc_arg.add_argument('--trend_coef', type=float, default=.8, help="coefficients that apply to individual run's weights")
 
