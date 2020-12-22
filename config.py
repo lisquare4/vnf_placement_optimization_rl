@@ -47,6 +47,9 @@ perf_arg.add_argument('--enable_performance', type=str2bool, default=False, help
 # Misc
 misc_arg = add_argument_group('User options')
 
+misc_arg.add_argument('--trend_mode', type=str, default='reward', help="FL's trend to individual run's weights")
+misc_arg.add_argument('--trend_coef', type=float, default=.8, help="coefficients that apply to individual run's weights")
+
 misc_arg.add_argument('--num_runs', type=int, default=5, help='number of runs')
 misc_arg.add_argument('--cycle_iters', type=int, default=1000, help='number of iterations/epoch in a FL cycle')
 misc_arg.add_argument('--learn_mode', type=str2bool, default=False, help='switch to inference mode when model is learned')

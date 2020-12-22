@@ -317,11 +317,8 @@ def learning(sess, config, env, networkServices, agent, saver):
         # 2.3 apply weights to latest run with trend
 
         best_reward_idx = 0
-        best_reward_coef = 0
         best_penalty_idx= 0
-        best_penalty_coef = 0
         best_loss_idx = 0
-        best_loss_coef = 0
 
         _best_reward = _metrics[0][0]
         _best_penalty = _metrics[0][1]
@@ -344,14 +341,17 @@ def learning(sess, config, env, networkServices, agent, saver):
                 best_loss_idx = idx
 
         if config.trend_mode == "reward":
+            best_reward_coef = config.trend_coef
             for item_idx in range(len(weight_ave)):
                 if weight_map[item_idx]:
                     weight_ave[item_idx] = weight_list[best_reward_idx] * best_reward_coef
         elif config.trend_mode == "penalty":
+            best_penalty_coef = config.trend_coef
             for item_idx in range(len(weight_ave)):
                 if weight_map[item_idx]:
                     weight_ave[item_idx] = weight_list[best_penalty_idx] * best_penalty_coef
         elif config.trend_mode == "loss":
+            best_loss_coef = config.trend_coef
             for item_idx in range(len(weight_ave)):
                 if weight_map[item_idx]:
                     weight_ave[item_idx] = weight_list[best_loss_idx] * best_loss_coef
