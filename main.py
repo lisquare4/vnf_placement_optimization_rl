@@ -24,6 +24,7 @@ DEBUG = True
 FL_DEBUG = True
 TEST_VNF_FL = True
 TEST_VNF = True
+DEBUG_VERBOSE = False
 
 def print_trainable_parameters():
     """ Calculate the number of weights """
@@ -205,26 +206,29 @@ def learning(sess, config, env, networkServices, agent, saver):
 
                 # Print learning
                 if episode == 0 or episode % 100 == 0:
-                    print("------------")
-                    print("Episode: ", episode)
-                    print("Minibatch loss: ", loss_rl)
-                    print("Network service[batch0]: ", networkServices.state[0])
-                    print("Len[batch0]", networkServices.service_length[0])
-                    print("Placement[batch0]: ", placement_[0])
+                    if not DEBUG_VERBOSE:
+                        print("process {}, episode {}".format(run_idx, episode))
+                    else:
+                        print("------------")
+                        print("Episode: ", episode)
+                        print("Minibatch loss: ", loss_rl)
+                        print("Network service[batch0]: ", networkServices.state[0])
+                        print("Len[batch0]", networkServices.service_length[0])
+                        print("Placement[batch0]: ", placement_[0])
 
-                    # agent.actor.plot_attention(attention_plot[0])
-                    # print("prob:", decoder_softmax[0][0])
-                    # print("prob:", decoder_softmax[0][1])
-                    # print("prob:", decoder_softmax[0][2])
+                        # agent.actor.plot_attention(attention_plot[0])
+                        # print("prob:", decoder_softmax[0][0])
+                        # print("prob:", decoder_softmax[0][1])
+                        # print("prob:", decoder_softmax[0][2])
 
-                    print("Baseline[batch0]: ", baseline[0])
-                    print("Reward[batch0]: ", reward[0])
-                    print("Penalty[batch0]: ", penalty[0])
-                    print("Lagrangian[batch0]: ", lagrangian[0])
+                        print("Baseline[batch0]: ", baseline[0])
+                        print("Reward[batch0]: ", reward[0])
+                        print("Penalty[batch0]: ", penalty[0])
+                        print("Lagrangian[batch0]: ", lagrangian[0])
 
-                    print("Value Estimator loss: ", np.mean(loss))
-                    print("Mean penalty: ", np.mean(penalty))
-                    print("Count_nonzero: ", np.count_nonzero(penalty))
+                        print("Value Estimator loss: ", np.mean(loss))
+                        print("Mean penalty: ", np.mean(penalty))
+                        print("Count_nonzero: ", np.count_nonzero(penalty))
 
                 if episode % 10 == 0:
                     # Save in summary
@@ -306,6 +310,8 @@ def learning(sess, config, env, networkServices, agent, saver):
             weight_map[12:19] = [1]*7
         elif config.weight_map == 'rl':
             weight_map[19:] = [1]*2
+        elif config.weight_map == 'all':
+            weight_map = [1]*21
 
         # 2.2 calculate default(ave all result)
         weight_sum = weight_list[0]
@@ -344,7 +350,8 @@ def learning(sess, config, env, networkServices, agent, saver):
             best_reward_coef = config.trend_coef
             for item_idx in range(len(weight_ave)):
                 if weight_map[item_idx]:
-                    weight_ave[item_idx] = np.multiply(weight_list[best_reward_idx][item_idx], best_reward_coef)
+                    weight_ave[item_idx] = weight_list[best_reward_idx][item_idx] * best_reward_coef +\
+                                           weight_ave[item_idx] * (1. - best_reward_coef)
         elif config.trend_mode == "penalty":
             best_penalty_coef = config.trend_coef
             for item_idx in range(len(weight_ave)):
