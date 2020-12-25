@@ -1,9 +1,0 @@
-python main.py --learn_mode=True --save_model=True --min_length=12 --max_length=12 --num_layers=1 --hidden_dim=32 --num_cpus=10 --env_profile="small_default" --trend_mode="reward" --trend_coef=0.5 --weight_map="all" --save_to=save/500_re_0.5_ --cycle_iter=500 --num_runs=5 --num_epoch=20000
-
-python main.py --learn_mode=True --save_model=True --min_length=12 --max_length=12 --num_layers=1 --hidden_dim=32 --num_cpus=10 --env_profile="small_default" --trend_mode="reward" --trend_coef=0.4 --weight_map="all" --save_to=save/500_re_0.4_ --cycle_iter=500 --num_runs=5 --num_epoch=20000
-
-python main.py --learn_mode=True --save_model=True --min_length=12 --max_length=12 --num_layers=1 --hidden_dim=32 --num_cpus=10 --env_profile="small_default" --trend_mode="reward" --trend_coef=0.3 --weight_map="all" --save_to=save/500_re_0.3_ --cycle_iter=500 --num_runs=5 --num_epoch=20000
-
-python main.py --learn_mode=True --save_model=True --min_length=12 --max_length=12 --num_layers=1 --hidden_dim=32 --num_cpus=10 --env_profile="small_default" --trend_mode="reward" --trend_coef=0.2 --weight_map="all" --save_to=save/500_re_0.2_ --cycle_iter=500 --num_runs=5 --num_epoch=20000
-
-python main.py --learn_mode=True --save_model=True --min_length=12 --max_length=12 --num_layers=1 --hidden_dim=32 --num_cpus=10 --env_profile="small_default" --trend_mode="reward" --trend_coef=0.1 --weight_map="all" --save_to=save/500_re_0.1_ --cycle_iter=500 --num_runs=5 --num_epoch=20000
