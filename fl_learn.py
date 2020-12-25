@@ -19,7 +19,7 @@ with open('fl_script.txt', 'w') as f:
         for it in iters:
             for tm in trend_mode:
                 for tc in trend_coef:
-                    save_path = 's_{}_{}_{}_'.format(tc, tm.strip("'")[:2], it)
+                    save_path = 's_{}_{}_{}_'.format(tc, tm.strip('"')[:2], it)
                     if env == small_env:
                         path_list = list(save_path)
                         path_list[0] = 'g'
