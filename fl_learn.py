@@ -1,6 +1,6 @@
 
 small_env = '--min_length=12 --max_length=12 --num_layers=1 --hidden_dim=32 --num_cpus=10 --env_profile="small_default" --num_epoch=10000 '
-big_env = '--min_length=20 --max_length=20 --num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="big_default" --num_epoch=20000 '
+big_env = '--min_length=20 --max_length=20 --num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=20000 '
 
 base = 'python main.py --learn_mode=true --save_model=true --num_runs=5 --weight_map="all" '
 
