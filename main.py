@@ -255,9 +255,9 @@ def learning(sess, config, env, networkServices, agent, saver):
                     csvFile.close()
 
                 # Save intermediary model variables
-                if config.save_model and episode % max(1, epoch_cycle_end - epoch_cycle_start) == 0 and episode != 0:
-                    save_path = saver.save(sess, "{}/tmp.ckpt".format(save_to), global_step=episode)
-                    print("\nModel saved in file: %s" % save_path)
+                # if config.save_model and episode % max(1, epoch_cycle_end - epoch_cycle_start) == 0 and episode != 0:
+                #     save_path = saver.save(sess, "{}/tmp.ckpt".format(save_to), global_step=episode)
+                #     print("\nModel saved in file: %s" % save_path)
 
                 episode += 1
 
