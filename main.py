@@ -231,9 +231,9 @@ def learning(sess, config, env, networkServices, agent, saver):
                         print("Mean penalty: ", np.mean(penalty))
                         print("Count_nonzero: ", np.count_nonzero(penalty))
 
-                if episode % 10 == 0:
-                    # Save in summary
-                    writer.add_summary(summary, episode)
+                # if episode % 10 == 0:
+                #     # Save in summary
+                #     writer.add_summary(summary, episode)
 
                 if config.save_model and (episode == 0 or episode % 100 == 0):
                     # Save in csv
