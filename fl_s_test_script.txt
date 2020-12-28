@@ -1,0 +1,20 @@
+python main.py --learn_mode=False --save_model=False --enable_performance=True --min_length=22 --max_length=22 --num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=20000 --load_from=save_vnf/l22b --fl_load_from=save/l_22_0.3_re_1500_
+python main.py --learn_mode=False --save_model=False --enable_performance=True --min_length=22 --max_length=22 --num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=20000 --load_from=save_vnf/l22b --fl_load_from=save/l_22_0.3_pe_1500_
+python main.py --learn_mode=False --save_model=False --enable_performance=True --min_length=22 --max_length=22 --num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=20000 --load_from=save_vnf/l22b --fl_load_from=save/l_22_ave_1500_
+
+python main.py --learn_mode=False --save_model=False --enable_performance=True --min_length=24 --max_length=24 --num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=20000 --load_from=save_vnf/l24b --fl_load_from=save/l_24_0.3_re_1500_
+python main.py --learn_mode=False --save_model=False --enable_performance=True --min_length=24 --max_length=24 --num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=20000 --load_from=save_vnf/l24b --fl_load_from=save/l_24_0.3_pe_1500_
+python main.py --learn_mode=False --save_model=False --enable_performance=True --min_length=24 --max_length=24 --num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=20000 --load_from=save_vnf/l24b --fl_load_from=save/l_24_ave_1500_
+
+python main.py --learn_mode=False --save_model=False --enable_performance=True --min_length=26 --max_length=26 --num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=20000 --load_from=save_vnf/l26b --fl_load_from=save/l_26_0.3_re_1500_
+python main.py --learn_mode=False --save_model=False --enable_performance=True --min_length=26 --max_length=26 --num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=20000 --load_from=save_vnf/l26b --fl_load_from=save/l_26_0.3_pe_1500_
+python main.py --learn_mode=False --save_model=False --enable_performance=True --min_length=26 --max_length=26 --num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=20000 --load_from=save_vnf/l26b --fl_load_from=save/l_26_ave_1500_
+
+python main.py --learn_mode=False --save_model=False --enable_performance=True --min_length=28 --max_length=28 --num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=20000 --load_from=save_vnf/l28b --fl_load_from=save/l_28_0.3_re_1500_
+python main.py --learn_mode=False --save_model=False --enable_performance=True --min_length=28 --max_length=28 --num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=20000 --load_from=save_vnf/l28b --fl_load_from=save/l_28_0.3_pe_1500_
+python main.py --learn_mode=False --save_model=False --enable_performance=True --min_length=28 --max_length=28 --num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=20000 --load_from=save_vnf/l28b --fl_load_from=save/l_28_ave_1500_
+
+python main.py --learn_mode=False --save_model=False --enable_performance=True --min_length=30 --max_length=30 --num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=20000 --load_from=save_vnf/l30b --fl_load_from=save/l_30_0.3_re_1500_
+python main.py --learn_mode=False --save_model=False --enable_performance=True --min_length=30 --max_length=30 --num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=20000 --load_from=save_vnf/l30b --fl_load_from=save/l_30_0.3_pe_1500_
+python main.py --learn_mode=False --save_model=False --enable_performance=True --min_length=30 --max_length=30 --num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=20000 --load_from=save_vnf/l30b --fl_load_from=save/l_30_ave_1500_
+
