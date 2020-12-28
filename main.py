@@ -755,7 +755,7 @@ def inference(sess, config, env, networkServices, agent, saver):
                        ' fl_reward: {}'.format(fl_reward_t[batch]),
                        ' fl_penalty: {}'.format(fl_penalty_t[batch])]
 
-            filePath = '{}_test.csv'.format(config.load_from)
+            filePath = '{}_test.csv'.format(config.fl_load_from)
             with open(filePath, 'a') as csvFile:
                 writer = csv.writer(csvFile)
                 writer.writerow(csvData)

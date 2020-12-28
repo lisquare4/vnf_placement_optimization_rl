@@ -101,7 +101,7 @@ def render_g1_all(dataset, name, num_run, line_class):
     plot.show()
 
 
-def run(path, name, run_idx):
+def run_g1(path, name, run_idx):
     with open(path + name + str(run_idx) + "/learning_history.csv") as infile:
         reader = csv.reader(infile, delimiter=',')
         data = []
@@ -123,7 +123,7 @@ def run(path, name, run_idx):
 
         render_g1(data, name, run_idx)
 
-def run_all(path, name, num_run, line_class):
+def run_all_g1(path, name, num_run, line_class):
 
     dataset = []
     for run_idx in range(num_run):
@@ -149,17 +149,21 @@ def run_all(path, name, num_run, line_class):
 
     render_g1_all(dataset, name, num_run, line_class)
 
+def render_g2(path, name):
+    pass
+
+
 
 if __name__ == "__main__":
     path = '../save/'
-    name = 'g_0.5_p_500_'
+    name = 'g_0.5_pe_1500_'
 
-    RUN_ALL = True
+    RUN_ALL = False
     line_class_list = ['reward', 'penalty', 'minibatch_loss']
     if RUN_ALL:
-        run_all(path, name, 5, line_class_list[2])
+        run_all_g1(path, name, 5, line_class_list[1])
     else:
         for run_idx in range(5):
-            run(path, name, run_idx)
+            run_g1(path, name, run_idx)
 
 
