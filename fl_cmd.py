@@ -59,13 +59,13 @@ cmd = ''
 def gen_test_cmd():
     test_base ="python main.py --learn_mode=False --save_model=False --enable_performance=True "
 
-    with open('fl_s_test_script.txt', 'w') as f:
-        for env_seq in l_env_seqs:
-            env = "--min_length={} --max_length={} ".format(env_seq, env_seq) + large_env_base
+    with open('fl_s_test_script2.txt', 'w') as f:
+        for env_seq in s_env_seqs:
+            env = "--min_length={} --max_length={} ".format(env_seq, env_seq) + small_env_base
             for it in iters:
                 for tm in trend_mode:
                     for tc in trend_coef:
-                        save_path = 's_{}_{}_{}_{}_'.format(env_seq, tc, tm.strip('"')[:2], it)
+                        save_path = 's_{}_{}_{}_{}'.format(env_seq, tc, tm.strip('"')[:2], it)
                         if int(env_seq) >= 22:
                             path_list = list(save_path)
                             path_list[0] = 'l'
@@ -78,7 +78,7 @@ def gen_test_cmd():
                 # average
                 tm = 'ave'
                 tc = '0.5'
-                save_path = 's_{}_{}_{}_'.format(env_seq,tm, it)
+                save_path = 's_{}_{}_{}'.format(env_seq,tm, it)
                 if int(env_seq) >= 22:
                     path_list = list(save_path)
                     path_list[0] = 'l'
