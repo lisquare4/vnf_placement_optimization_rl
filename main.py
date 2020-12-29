@@ -757,7 +757,14 @@ def inference(sess, config, env, networkServices, agent, saver):
                        ' solver_reward: {}'.format(sReward[batch]),
                        ' fl_placement: {}'.format(fl_placement_t[batch]),
                        ' fl_reward: {}'.format(fl_reward_t[batch]),
-                       ' fl_penalty: {}'.format(fl_penalty_t[batch])]
+                       ' fl_penalty: {}'.format(fl_penalty_t[batch]),
+                       ' fl_CPU: {}'.format(np.sum(fl_constraint_occupancy_t)),
+                       ' fl_Bandwidth: {}'.format(np.sum(fl_constraint_bandwidth_t)),
+                       ' fl_Latency: {}'.format(np.sum(fl_constraint_latency_t)),
+                       ' ave_CPU: {}'.format(np.sum(constraint_occupancy_m)/constraint_occupancy_m.shape[0]),
+                       ' ave_Bandwidth: {}'.format(np.sum(constraint_bandwidth_m)/constraint_bandwidth_m.shape[0]),
+                       ' ave_Latency: {}'.format(np.sum(constraint_latency_m)/constraint_latency_m.shape[0]),
+                       ]
 
             filePath = '{}_{}_test.csv'.format(config.fl_load_from, 'no_Solver')
             if config.solver_on:

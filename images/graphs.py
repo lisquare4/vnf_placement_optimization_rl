@@ -352,7 +352,7 @@ def run_g4(path, names, mode, layout):
 
 if __name__ == "__main__":
     path = '../save/'
-    name = 'l_24_ave_1500_'
+    name = 's_12_0.3_re_1500_'
     names = [
         's_12_0.3_re_1500_',
         # 's_12_0.3_re_1500_',
@@ -363,8 +363,9 @@ if __name__ == "__main__":
     ]
 
     # run_g2(path, name, mode='reward')
-    run_g4(path, names, mode='reward', layout='value')
-    run_g4(path, names, mode='reward', layout='ratio')
+    run_g2(path, name, mode='penalty')
+    # run_g4(path, names, mode='reward', layout='value')
+    # run_g4(path, names, mode='reward', layout='ratio')
 
     # RUN_ALL = False
     # line_class_list = ['reward', 'penalty', 'minibatch_loss']
