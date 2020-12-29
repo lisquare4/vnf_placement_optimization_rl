@@ -61,6 +61,7 @@ misc_arg.add_argument('--save_to', type=str, default='save/model', help='saver s
 misc_arg.add_argument('--load_from', type=str, default='save/model', help='loader sub directory')
 misc_arg.add_argument('--fl_load_from', type=str, default='save/model', help='loader fl sub directory')
 misc_arg.add_argument('--log_dir', type=str, default='summary/repo', help='summary writer log directory')
+misc_arg.add_argument('--solver_on', type=str2bool, default=False, help='Compare with solver or not')
 
 
 def get_config():

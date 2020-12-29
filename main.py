@@ -701,7 +701,9 @@ def inference(sess, config, env, networkServices, agent, saver):
 
         sReward = np.zeros(config.batch_size)
 
-        filePath = '{}_test.csv'.format(config.load_from)
+        filePath = '{}_{}_test.csv'.format(config.fl_load_from, 'no_Solver')
+        if config.solver_on:
+            filePath = '{}_test.csv'.format(config.fl_load_from)
         if os.path.exists(filePath):
             os.remove(filePath)
 
@@ -714,8 +716,10 @@ def inference(sess, config, env, networkServices, agent, saver):
             hPenalty = agent.lambda_occupancy * hCst_occupancy + agent.lambda_bandwidth * hCst_bandwidth + agent.lambda_latency * hCcst_latency
             hLagrangian = hEnergy + hPenalty
 
-            sPlacement, sSvc_bandwidth, sSvc_net_latency, sSvc_cpu_latency, sEnergy, sOccupancy, sLink_used = \
-                solver(networkServices.state[batch], networkServices.service_length[batch], env)
+            sPlacement, sSvc_bandwidth, sSvc_net_latency, sSvc_cpu_latency, sEnergy, sOccupancy, sLink_used = None, 0., 0., 0., 0., 0., 0.
+            if config.solver_on:
+                sPlacement, sSvc_bandwidth, sSvc_net_latency, sSvc_cpu_latency, sEnergy, sOccupancy, sLink_used = \
+                    solver(networkServices.state[batch], networkServices.service_length[batch], env)
 
             if sPlacement == None:
                 sReward[batch] = 0
@@ -755,7 +759,9 @@ def inference(sess, config, env, networkServices, agent, saver):
                        ' fl_reward: {}'.format(fl_reward_t[batch]),
                        ' fl_penalty: {}'.format(fl_penalty_t[batch])]
 
-            filePath = '{}_test.csv'.format(config.fl_load_from)
+            filePath = '{}_{}_test.csv'.format(config.fl_load_from, 'no_Solver')
+            if config.solver_on:
+                filePath = '{}_test.csv'.format(config.fl_load_from)
             with open(filePath, 'a') as csvFile:
                 writer = csv.writer(csvFile)
                 writer.writerow(csvData)
