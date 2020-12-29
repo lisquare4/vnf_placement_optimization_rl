@@ -59,9 +59,9 @@ cmd = ''
 def gen_test_cmd():
     test_base ="python main.py --learn_mode=False --save_model=False --enable_performance=True "
 
-    with open('fl_s_test_script2.txt', 'w') as f:
-        for env_seq in s_env_seqs:
-            env = "--min_length={} --max_length={} ".format(env_seq, env_seq) + small_env_base
+    with open('fl_s_test_script.txt', 'w') as f:
+        for env_seq in l_env_seqs:
+            env = "--min_length={} --max_length={} ".format(env_seq, env_seq) + large_env_base
             for it in iters:
                 for tm in trend_mode:
                     for tc in trend_coef:
@@ -71,7 +71,7 @@ def gen_test_cmd():
                             path_list[0] = 'l'
                             save_path = ''.join(path_list)
                         cmd = test_base + env + \
-                              "--load_from=save_vnf/l{}b ".format(env_seq) + \
+                              "--load_from=save_vnf/ll{}b ".format(env_seq) + \
                               "--fl_load_from=save/{}".format(save_path)
                         f.write(cmd + '\n')
 
@@ -84,7 +84,7 @@ def gen_test_cmd():
                     path_list[0] = 'l'
                     save_path = ''.join(path_list)
                 cmd = test_base + env + \
-                      "--load_from=save_vnf/l{}b ".format(env_seq) + \
+                      "--load_from=save_vnf/ll{}b ".format(env_seq) + \
                       "--fl_load_from=save/{}".format(save_path)
                 f.write(cmd + '\n')
                 f.write('\n')
