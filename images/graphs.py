@@ -426,11 +426,14 @@ def run_g3(path, names, small_range):
     vnf_cpu_data = [l['ave_CPU'] for l in result_list]
 
     fig, ax = plot.subplots()
-    ax.bar(X + 0.00, fl_cpu_data, color = 'g', width = 0.25)
-    ax.bar(X + 0.25, vnf_cpu_data, color = 'gray', width = 0.25)
+    ax.bar(X + 0.00, fl_cpu_data, color = 'darkgreen', width = 0.25,
+           edgecolor = 'black', hatch = "///")
+    ax.bar(X + 0.25, vnf_cpu_data, color = 'firebrick', width = 0.25,
+           edgecolor = 'black', hatch = "\\\\\\")
     ax.legend(['FSCO', 'NCO'], loc="upper left")
-    # ax.set_ylabel('Exceeded CPUs')
-    ax.set_title('Exceeded CPUs(Core)')
+    # ax.set_ylabel('Exceeded Memory(Gb)')
+    ax.set_ylabel('Exceeded CPUs(Core)')
+    ax.set_xlabel('SFC length')
     plot.xticks(X , ("12", "14", "16", "18"))
     plot.show()
 
@@ -439,11 +442,14 @@ def run_g3(path, names, small_range):
     vnf_ping_data = [l['ave_Latency'] for l in result_list]
 
     fig, ax = plot.subplots()
-    ax.bar(X + 0.00, fl_ping_data, color = 'g', width = 0.25)
-    ax.bar(X + 0.25, vnf_ping_data, color = 'gray', width = 0.25)
+    ax.bar(X + 0.00, fl_ping_data, color = 'darkgreen', width = 0.25,
+           edgecolor='black', hatch= "///")
+    ax.bar(X + 0.25, vnf_ping_data, color = 'firebrick', width = 0.25,
+           edgecolor = 'black', hatch = "\\\\\\")
     ax.legend(['FSCO', 'NCO'], loc="upper right")
     # ax.set_ylabel('Exceeded CPUs')
-    ax.set_title('Exceeded Memory(Gb)')
+    ax.set_ylabel('Exceeded Memory(Gb)')
+    ax.set_xlabel('SFC length')
     plot.xticks(X , ("12", "14", "16", "18"))
     plot.show()
 
@@ -452,11 +458,14 @@ def run_g3(path, names, small_range):
     vnf_bw_data = [l['ave_Bandwidth'] for l in result_list]
 
     fig, ax = plot.subplots()
-    ax.bar(X + 0.00, fl_bw_data, color = 'g', width = 0.25)
-    ax.bar(X + 0.25, vnf_bw_data, color = 'gray', width = 0.25)
+    ax.bar(X + 0.00, fl_bw_data, color = 'darkgreen', width = 0.25,
+           edgecolor = 'black', hatch = "///")
+    ax.bar(X + 0.25, vnf_bw_data, color = 'firebrick', width = 0.25,
+           edgecolor = 'black', hatch = "\\\\\\")
     ax.legend(['FSCO', 'NCO'], loc="upper left")
     # ax.set_ylabel('Exceeded CPUs')
-    ax.set_title('Exceeded Bandwidth(Gbps)')
+    ax.set_ylabel('Exceeded Bandwidth(Gbps)')
+    ax.set_xlabel('SFC length')
     plot.xticks(X , ("12", "14", "16", "18"))
     plot.show()
 
@@ -547,21 +556,21 @@ if __name__ == "__main__":
     # run_g2(path, name, mode='reward')
     # run_g2(path, name, mode='penalty')
 
-    blend_range = list(np.arange(.3,.6,.1))
-    blend_range = [round(br, 2) for br in blend_range]
-
-    path_g2 = '../save_backup/save/'
-    names_group_g2 =[]
-    names_group_g2.extend([
-        'g_{}_pe_1000_'.format(br) for br in blend_range
-        # 's_{}_ave_1500_no_Solver_'.format(s_r) for s_r in small_range
-    ])
-    names_group_g2.extend([
-        'g_{}_re_1000_'.format(br) for br in blend_range
-        # 's_{}_ave_1500_no_Solver_'.format(s_r) for s_r in small_range
-    ])
-    names_group_g2.extend(['g_ave_1000_'])
-    run_g2_all(path_g2, names_g2, blend_range, mode='reward')
+    # blend_range = list(np.arange(.3,.6,.1))
+    # blend_range = [round(br, 2) for br in blend_range]
+    #
+    # path_g2 = '../save_backup/save/'
+    # names_group_g2 =[]
+    # names_group_g2.extend([
+    #     'g_{}_pe_1000_'.format(br) for br in blend_range
+    #     # 's_{}_ave_1500_no_Solver_'.format(s_r) for s_r in small_range
+    # ])
+    # names_group_g2.extend([
+    #     'g_{}_re_1000_'.format(br) for br in blend_range
+    #     # 's_{}_ave_1500_no_Solver_'.format(s_r) for s_r in small_range
+    # ])
+    # names_group_g2.extend(['g_ave_1000_'])
+    # run_g2_all(path_g2, names_g2, blend_range, mode='reward')
 
 
     # run_g4(path, names, mode='reward', layout='value')
@@ -576,10 +585,10 @@ if __name__ == "__main__":
     #         run_g1(path, name, run_idx)
 
 
-    # small_range = list(range(12,20,2))
-    # names_g3 = [
-    #     # 's_{}_0.3_re_1500_no_Solver_'.format(s_r) for s_r in small_range
-    #     's_{}_ave_1500_no_Solver_'.format(s_r) for s_r in small_range
-    # ]
-    # run_g3(path, names_g3, small_range)
+    small_range = list(range(12,20,2))
+    names_g3 = [
+        's_{}_0.3_re_1500_no_Solver_'.format(s_r) for s_r in small_range
+        # 's_{}_ave_1500_no_Solver_'.format(s_r) for s_r in small_range
+    ]
+    run_g3(path, names_g3, small_range)
 
