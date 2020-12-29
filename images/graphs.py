@@ -25,7 +25,7 @@ def render_g1(data, name, run_idx):
         penalty_list.append(row['penalty'])
         minibatchloss_list.append(row['minibatch_loss'])
 
-    # minibatchloss_list = np.multiply(minibatchloss_list, -0.1)
+    minibatchloss_list = np.multiply(minibatchloss_list, -0.1)
     # batch_list= np.multiply(batch_list, 0.01)
     # reward_list= np.multiply(reward_list, .5)
     # penalty_list= np.multiply(penalty_list, .2)
@@ -34,12 +34,12 @@ def render_g1(data, name, run_idx):
 
 
     # subplot
-    plot.plot(batch_list, reward_list, color='red', marker=">")
-    plot.plot(batch_list, penalty_list, color='green', marker="o")
-    plot.plot(batch_list, minibatchloss_list, color='yellow', marker="*")
+    # plot.plot(batch_list, reward_list, color='red', marker=">")
+    # plot.plot(batch_list, penalty_list, color='green', marker="o")
+    plot.plot(batch_list, minibatchloss_list, color='green', marker="*")
     lg =[
-        'reward',
-        'penalty',
+        # 'reward',
+        # 'penalty',
         'minibatch_loss',
     ]
     plot.legend([l + str(run_idx) for l in lg])
@@ -133,6 +133,7 @@ def render_g4(result_list, mode, layout):
             seq_lists[idx-1].append(seq)
             if idx in [1,3,4]:
                 ratio = 1. - np.count_nonzero(line[idx]) / len(line[idx])
+                ratio *= 100.
             else:
                 ratio = np.count_nonzero(line[idx]) / len(line[idx])
             ratio_lists[idx-1].append(ratio)
@@ -146,44 +147,91 @@ def render_g4(result_list, mode, layout):
             ax.plot(y, ratio_lists[0], color='r', linestyle='--')
             ax.plot(y, ratio_lists[2], color='g', linestyle='-')
             ax.plot(y, ratio_lists[3], color='b', linestyle=':')
-            ax.legend(['VNF_reward', 'Gecode', 'FL_reward(ours)'], loc="upper right", framealpha=.5)
+            ax.legend(['NCO', 'BAB', 'FSCO'],
+                      loc="upper left", framealpha=.5)
         elif mode == 'penalty':
             # left
             ax.plot(y, ratio_lists[1], color='r', linestyle='--')
             ax.plot(y, ratio_lists[4], color='g', linestyle='-')
-            ax.legend(['VNF_penalty', 'Gecode', 'FL_penalty(ours)'])
+            ax.legend(['NCO', 'BAB', 'FSCO'],
+                      loc="upper left", framealpha=.5)
 
-        y_lab = "Error in Placement"
-
+        y_lab = "Placement error ratio(%)"
         plot.setp(ax, ylabel=y_lab)
+        x_lab = "SFC length"
+        plot.setp(ax, xlabel=x_lab)
+
+        fig.tight_layout()
+        plot.show()
 
     else:
-
-        # subplot
-        # two plots, left ave, right ratio
-        # subplot
-        fig, ax = plot.subplots(3, 1)
-
+        y_desc = "Network cost"
         if mode == 'reward':
-            ax[0].boxplot(seq_lists[0], showmeans=True, )
-            ax[0].legend(['VNF_reward'], loc="upper left", framealpha=.5)
-            ax[1].boxplot(seq_lists[2], showmeans=True, )
-            ax[1].legend(['Gecode_reward'], loc="upper left", framealpha=.5)
-            ax[2].boxplot(seq_lists[3], showmeans=True, )
-            ax[2].legend(['FL_reward(ours)'], loc="upper left", framealpha=.5)
+            fig, ax = plot.subplots(3,1)
+            ax[0].boxplot(seq_lists[0], showmeans=True, showfliers=False, widths=.25)
+            ax[0].legend(['NCO'], loc="upper left", framealpha=.5)
+            y_lab = y_desc
+            plot.setp(ax[0], ylabel=y_lab)
+
+            x_lab = "SFC length"
+            plot.setp(ax[0], xlabel=x_lab)
+            plot.setp(ax[0], xticklabels=[12, 14, 16, 18])
+            plot.setp(ax[0], ylim=(0,8000))
+
+            ##############
+            ax[1].boxplot(seq_lists[2], showmeans=True, showfliers=False, widths=.25)
+            ax[1].legend(['BAB'], loc="upper left", framealpha=.5)
+            y_lab = y_desc
+            plot.setp(ax[1], ylabel=y_lab)
+
+            x_lab = "SFC length"
+            plot.setp(ax[1], xlabel=x_lab)
+            plot.setp(ax[1], xticklabels=[12, 14, 16, 18])
+            plot.setp(ax[1], ylim=(0,8000))
+
+            ###############
+            ax[2].boxplot(seq_lists[3], showmeans=True, showfliers=False, widths=.25)
+            ax[2].legend(['FSCO'], loc="upper left", framealpha=.5)
+            y_lab = y_desc
+            plot.setp(ax[2], ylabel=y_lab)
+            plot.setp(ax[2], ylim=(0,8000))
+
+            x_lab = "SFC length"
+            plot.setp(ax[2], xlabel=x_lab)
+            plot.setp(ax[2], xticklabels=[12, 14, 16, 18])
+
+            fig.tight_layout()
+            plot.show()
 
         elif mode == 'penalty':
-            ax[0].boxplot(seq_lists[1], showmeans=True, )
-            ax[0].legend(['VNF_penalty'], loc="upper left", framealpha=.5)
-            ax[1].boxplot(seq_lists[4], showmeans=True, )
-            ax[1].legend(['Gecode'], loc="upper left", framealpha=.5)
+            fig, ax = plot.subplots()
+            ax.boxplot(seq_lists[1], showmeans=True, showfliers=False, widths=.25)
+            # ax.legend(['NCO'], loc="upper left", framealpha=.5)
+
+            ax.boxplot(seq_lists[3], showmeans=True, showfliers=False, widths=.25)
+            # ax.legend(['FSCO'], loc="upper left", framealpha=.5)
+            y_lab = y_desc
+            plot.setp(ax, ylabel=y_lab)
+
+            x_lab = "SFC length"
+            plot.setp(ax, xlabel=x_lab)
+            plot.setp(ax, xticklabels=[12, 14, 16, 18])
+
+            ##############
+            fig, ax = plot.subplots()
+            ax.boxplot(seq_lists[4], showmeans=True, showfliers=False, widths=.25)
+            # ax.legend(['BAB'], loc="upper left", framealpha=.5)
+
+            ax.boxplot(seq_lists[3], showmeans=True, showfliers=False, widths=.25)
+            # ax.legend(['FSCO'], loc="upper left", framealpha=.5)
+            y_lab = y_desc
+            plot.setp(ax, ylabel=y_lab)
+
+            x_lab = "SFC length"
+            plot.setp(ax, xlabel=x_lab)
+            plot.setp(ax, xticklabels=[12, 14, 16, 18])
 
 
-        y_lab = mode + " in Placement"
-        plot.setp(ax[1], ylabel=y_lab)
-
-    fig.tight_layout()
-    plot.show()
 
 
 
@@ -425,8 +473,8 @@ if __name__ == "__main__":
 
     # run_g2(path, name, mode='reward')
     # run_g2(path, name, mode='penalty')
-    # run_g4(path, names, mode='reward', layout='value')
-    # run_g4(path, names, mode='reward', layout='ratio')
+    run_g4(path, names, mode='reward', layout='value')
+    run_g4(path, names, mode='reward', layout='ratio')
 
     # RUN_ALL = False
     # line_class_list = ['reward', 'penalty', 'minibatch_loss']
@@ -437,10 +485,10 @@ if __name__ == "__main__":
     #         run_g1(path, name, run_idx)
 
 
-    small_range = list(range(12,20,2))
-    names_g3 = [
-        # 's_{}_0.3_re_1500_no_Solver_'.format(s_r) for s_r in small_range
-        's_{}_ave_1500_no_Solver_'.format(s_r) for s_r in small_range
-    ]
-    run_g3(path, names_g3, small_range)
+    # small_range = list(range(12,20,2))
+    # names_g3 = [
+    #     # 's_{}_0.3_re_1500_no_Solver_'.format(s_r) for s_r in small_range
+    #     's_{}_ave_1500_no_Solver_'.format(s_r) for s_r in small_range
+    # ]
+    # run_g3(path, names_g3, small_range)
 
