@@ -40,11 +40,12 @@ def render_g1(data, name, run_idx):
     lg =[
         # 'reward',
         # 'penalty',
-        'minibatch_loss',
+        # 'minibatch_loss',
     ]
-    plot.legend([l + str(run_idx) for l in lg])
+    # plot.legend([l + str(run_idx) for l in lg])
     # plot.yscale('log')
-    plot.suptitle(name + str(run_idx))
+    plot.ylabel('Loss function')
+    plot.xlabel('Training epochs')
     plot.show()
 
 def render_g2(data, name, mode):
@@ -459,6 +460,78 @@ def run_g3(path, names, small_range):
     plot.xticks(X , ("12", "14", "16", "18"))
     plot.show()
 
+def run_g2_all(path, groups, name_range, mode):
+
+    dataset = []
+    for group in groups:
+        names = group
+        for name_idx in range(len(names)):
+            with open(path + names[name_idx]+ "0" + "/learning_history.csv") as infile:
+                reader = csv.reader(infile, delimiter=',')
+                data = []
+                for row in reader:
+                    if row: # skip null row
+                        new_row = {}
+
+                        for cell in row:
+                            key, value = cell.split(":")
+                            key = key.strip()
+                            if key == 'network_service[batch 0]' or key == "placement[batch 0]":
+                                pass
+                            else:
+                                value = float(value)
+                                new_row[key] = value
+
+                        data.append(new_row)
+            dataset.append(data)
+
+
+    render_g2_all(dataset, names, name_range, mode)
+
+def render_g2_all(dataset, names, name_range, line_class):
+
+    lgs = []
+    colors = [
+        'c', 'm', 'y', 'k', 'r'
+    ]
+    styles = [
+        'None', '-', '--', '-.', ':'
+    ]
+    for run_idx in range(len(names)):
+        # 1. map same params result into same buckets
+
+        batch_list = []
+        reward_list = []
+        penalty_list = []
+        minibatchloss_list = []
+        for row in dataset[run_idx]:
+            batch_list.append(row['batch'])
+            reward_list.append(row['reward'])
+            penalty_list.append(row['penalty'])
+            minibatchloss_list.append(row['minibatch_loss'])
+
+        # 2. list sequences by params
+
+        # subplot
+
+        if line_class == 'reward':
+            plot.plot(batch_list, reward_list,
+                      color=colors[run_idx], lw=1.)
+        elif line_class == 'penalty':
+            plot.plot(batch_list, penalty_list,
+                      color=colors[run_idx], lw=1.)
+        elif line_class == 'minibatch_loss':
+            plot.plot(batch_list, minibatchloss_list,
+                      color=colors[run_idx], lw=1.)
+        else:
+            print("[ERR] Fail to selector plot line class")
+
+        lg = [str(n)+ line_class for n in name_range]
+        lgs.extend(lg)
+
+    plot.legend(lgs)
+    plot.show()
+
 if __name__ == "__main__":
     path = '../save/'
     name = 's_12_0.3_re_1500_'
@@ -473,8 +546,26 @@ if __name__ == "__main__":
 
     # run_g2(path, name, mode='reward')
     # run_g2(path, name, mode='penalty')
-    run_g4(path, names, mode='reward', layout='value')
-    run_g4(path, names, mode='reward', layout='ratio')
+
+    blend_range = list(np.arange(.3,.6,.1))
+    blend_range = [round(br, 2) for br in blend_range]
+
+    path_g2 = '../save_backup/save/'
+    names_group_g2 =[]
+    names_group_g2.extend([
+        'g_{}_pe_1000_'.format(br) for br in blend_range
+        # 's_{}_ave_1500_no_Solver_'.format(s_r) for s_r in small_range
+    ])
+    names_group_g2.extend([
+        'g_{}_re_1000_'.format(br) for br in blend_range
+        # 's_{}_ave_1500_no_Solver_'.format(s_r) for s_r in small_range
+    ])
+    names_group_g2.extend(['g_ave_1000_'])
+    run_g2_all(path_g2, names_g2, blend_range, mode='reward')
+
+
+    # run_g4(path, names, mode='reward', layout='value')
+    # run_g4(path, names, mode='reward', layout='ratio')
 
     # RUN_ALL = False
     # line_class_list = ['reward', 'penalty', 'minibatch_loss']
