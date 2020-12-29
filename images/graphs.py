@@ -348,7 +348,68 @@ def run_g4(path, names, mode, layout):
 
     render_g4(result_list, mode, layout)
 
+def run_g3(path, names, small_range):
 
+    result_list = []
+
+    for name in names:
+        new_row = {}
+        with open(path + name + 'test.csv') as infile:
+            reader = csv.reader(infile, delimiter=',')
+            row = list(reader)
+            for cell in row[0]:
+                key, value = cell.split(":")
+                key = key.strip()
+                if key[-3:] != "CPU" and key[-7:] != "Latency" and key[-9:] != "Bandwidth":
+                    pass
+                else:
+                    value = float(value)
+                    new_row[key] = value
+            result_list.append(new_row)
+
+    for dc in result_list:
+        for k,v in dc.items():
+            dc[k] = v/128.
+    # rendering q3
+    X = np.arange(4)
+    #CPU
+    fl_cpu_data = [l['fl_CPU'] for l in result_list]
+    vnf_cpu_data = [l['ave_CPU'] for l in result_list]
+
+    fig, ax = plot.subplots()
+    ax.bar(X + 0.00, fl_cpu_data, color = 'g', width = 0.25)
+    ax.bar(X + 0.25, vnf_cpu_data, color = 'gray', width = 0.25)
+    ax.legend(['FSCO', 'NCO'], loc="upper left")
+    # ax.set_ylabel('Exceeded CPUs')
+    ax.set_title('Exceeded CPUs(Core)')
+    plot.xticks(X , ("12", "14", "16", "18"))
+    plot.show()
+
+    # Latency
+    fl_ping_data = [l['fl_Latency'] for l in result_list]
+    vnf_ping_data = [l['ave_Latency'] for l in result_list]
+
+    fig, ax = plot.subplots()
+    ax.bar(X + 0.00, fl_ping_data, color = 'g', width = 0.25)
+    ax.bar(X + 0.25, vnf_ping_data, color = 'gray', width = 0.25)
+    ax.legend(['FSCO', 'NCO'], loc="upper right")
+    # ax.set_ylabel('Exceeded CPUs')
+    ax.set_title('Exceeded Memory(Gb)')
+    plot.xticks(X , ("12", "14", "16", "18"))
+    plot.show()
+
+    # Bandwidth
+    fl_bw_data = [l['fl_Bandwidth'] for l in result_list]
+    vnf_bw_data = [l['ave_Bandwidth'] for l in result_list]
+
+    fig, ax = plot.subplots()
+    ax.bar(X + 0.00, fl_bw_data, color = 'g', width = 0.25)
+    ax.bar(X + 0.25, vnf_bw_data, color = 'gray', width = 0.25)
+    ax.legend(['FSCO', 'NCO'], loc="upper left")
+    # ax.set_ylabel('Exceeded CPUs')
+    ax.set_title('Exceeded Bandwidth(Gbps)')
+    plot.xticks(X , ("12", "14", "16", "18"))
+    plot.show()
 
 if __name__ == "__main__":
     path = '../save/'
@@ -363,7 +424,7 @@ if __name__ == "__main__":
     ]
 
     # run_g2(path, name, mode='reward')
-    run_g2(path, name, mode='penalty')
+    # run_g2(path, name, mode='penalty')
     # run_g4(path, names, mode='reward', layout='value')
     # run_g4(path, names, mode='reward', layout='ratio')
 
@@ -375,4 +436,11 @@ if __name__ == "__main__":
     #     for run_idx in range(5):
     #         run_g1(path, name, run_idx)
 
+
+    small_range = list(range(12,20,2))
+    names_g3 = [
+        # 's_{}_0.3_re_1500_no_Solver_'.format(s_r) for s_r in small_range
+        's_{}_ave_1500_no_Solver_'.format(s_r) for s_r in small_range
+    ]
+    run_g3(path, names_g3, small_range)
 
