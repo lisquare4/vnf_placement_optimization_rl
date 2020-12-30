@@ -246,10 +246,6 @@ def render_g4(result_list, mode, layout):
             plot.setp(ax, xlabel=x_lab)
             plot.setp(ax, xticklabels=[12, 14, 16, 18])
 
-
-
-
-
 def render_g1_all(dataset, name, num_run, line_class):
     """
     render all g1 lines in to ONE graph
@@ -303,7 +299,6 @@ def render_g1_all(dataset, name, num_run, line_class):
     plot.legend(lgs)
     plot.suptitle(name + 'all')
     plot.show()
-
 
 def run_g1(path, name, run_idx):
     with open(path + name + str(run_idx) + "/learning_history.csv") as infile:
@@ -374,7 +369,6 @@ def run_g2(path, name, mode):
 
         render_g2(data, name, mode)
 
-
 def run_g4(path, names, mode, layout):
 
     result_list = []
@@ -411,7 +405,7 @@ def run_g4(path, names, mode, layout):
 
     render_g4(result_list, mode, layout)
 
-def run_g3(path, names, small_range):
+def run_g3(path, names, small_range, select_mem=False):
 
     result_list = []
 
@@ -440,48 +434,67 @@ def run_g3(path, names, small_range):
     vnf_cpu_data = [l['ave_CPU'] for l in result_list]
 
     fig, ax = plot.subplots()
-    ax.bar(X + 0.00, fl_cpu_data, color = 'darkgreen', width = 0.25,
+    ax.bar(X - 0.125, fl_cpu_data, color = 'darkgreen', width = 0.25,
            edgecolor = 'black', hatch = "///")
-    ax.bar(X + 0.25, vnf_cpu_data, color = 'firebrick', width = 0.25,
+    ax.bar(X + 0.125, vnf_cpu_data, color = 'firebrick', width = 0.25,
            edgecolor = 'black', hatch = "\\\\\\")
     ax.legend(['FSCO', 'NCO'], loc="upper left")
-    # ax.set_ylabel('Exceeded Memory(Gb)')
-    ax.set_ylabel('Exceeded CPUs(Core)')
+    if select_mem:
+        ax.set_ylabel('Exceeded Memory(Gb)')
+    else:
+        ax.set_ylabel('Exceeded CPUs(Core)')
     ax.set_xlabel('SFC length')
-    plot.xticks(X , ("12", "14", "16", "18"))
+    ax.set_axisbelow(True)
+    plot.xticks(X , ("12", "14", "16", "18"), fontsize=12)
+    plot.yticks(fontsize=12)
+    plot.grid()
+    if select_mem:
+        plot.savefig("../images/g3-2.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
+    else:
+        plot.savefig("../images/g3-1.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
     plot.show()
 
-    # Latency
-    fl_ping_data = [l['fl_Latency'] for l in result_list]
-    vnf_ping_data = [l['ave_Latency'] for l in result_list]
+    if False:
+        # Latency
+        fl_ping_data = [l['fl_Latency'] for l in result_list]
+        vnf_ping_data = [l['ave_Latency'] for l in result_list]
 
-    fig, ax = plot.subplots()
-    ax.bar(X + 0.00, fl_ping_data, color = 'darkgreen', width = 0.25,
-           edgecolor='black', hatch= "///")
-    ax.bar(X + 0.25, vnf_ping_data, color = 'firebrick', width = 0.25,
-           edgecolor = 'black', hatch = "\\\\\\")
-    ax.legend(['FSCO', 'NCO'], loc="upper right")
-    # ax.set_ylabel('Exceeded CPUs')
-    ax.set_ylabel('Exceeded Memory(Gb)')
-    ax.set_xlabel('SFC length')
-    plot.xticks(X , ("12", "14", "16", "18"))
-    plot.show()
+        fig, ax = plot.subplots()
+        ax.bar(X - 0.125, fl_ping_data, color = 'darkgreen', width = 0.25,
+               edgecolor='black', hatch= "///")
+        ax.bar(X + 0.125, vnf_ping_data, color = 'firebrick', width = 0.25,
+               edgecolor = 'black', hatch = "\\\\\\")
+        ax.legend(['FSCO', 'NCO'], loc="upper right")
+        # ax.set_ylabel('Exceeded CPUs')
+        ax.set_ylabel('Exceeded Memory(Gb)')
+        ax.set_xlabel('SFC length')
+        ax.set_axisbelow(True)
+        plot.xticks(X , ("12", "14", "16", "18"), fontsize=12)
+        plot.yticks(fontsize=12)
+        plot.grid()
+        plot.savefig("../images/g3-2.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
+        plot.show()
 
-    # Bandwidth
-    fl_bw_data = [l['fl_Bandwidth'] for l in result_list]
-    vnf_bw_data = [l['ave_Bandwidth'] for l in result_list]
+    if not select_mem:
+        # Bandwidth
+        fl_bw_data = [l['fl_Bandwidth'] for l in result_list]
+        vnf_bw_data = [l['ave_Bandwidth'] for l in result_list]
 
-    fig, ax = plot.subplots()
-    ax.bar(X + 0.00, fl_bw_data, color = 'darkgreen', width = 0.25,
-           edgecolor = 'black', hatch = "///")
-    ax.bar(X + 0.25, vnf_bw_data, color = 'firebrick', width = 0.25,
-           edgecolor = 'black', hatch = "\\\\\\")
-    ax.legend(['FSCO', 'NCO'], loc="upper left")
-    # ax.set_ylabel('Exceeded CPUs')
-    ax.set_ylabel('Exceeded Bandwidth(Gbps)')
-    ax.set_xlabel('SFC length')
-    plot.xticks(X , ("12", "14", "16", "18"))
-    plot.show()
+        fig, ax = plot.subplots()
+        ax.bar(X - 0.125, fl_bw_data, color = 'darkgreen', width = 0.25,
+               edgecolor = 'black', hatch = "///")
+        ax.bar(X + 0.125, vnf_bw_data, color = 'firebrick', width = 0.25,
+               edgecolor = 'black', hatch = "\\\\\\")
+        ax.legend(['FSCO', 'NCO'], loc="upper left")
+        # ax.set_ylabel('Exceeded CPUs')
+        ax.set_ylabel('Exceeded Bandwidth(Gbps)')
+        ax.set_xlabel('SFC length')
+        ax.set_axisbelow(True)
+        plot.xticks(X , ("12", "14", "16", "18"), fontsize=12)
+        plot.yticks(fontsize=12)
+        plot.grid()
+        plot.savefig("../images/g3-3.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
+        plot.show()
 
 def run_g2_all(path, names,  mode, select_J=False):
 
@@ -593,9 +606,9 @@ def render_g2_all(dataset, names, line_class, select_J = False):
 if __name__ == "__main__":
     DEBUG_G1_1 = DEBUG_G1_2 = \
         DEBUG_G2_1 = DEBUG_G2_2 = \
-        DEBUG_G3_1 = DEBUG_G3_2 = DEBUG_G3_1 = \
+        DEBUG_G3_1 = DEBUG_G3_2 = \
         DEBUG_G4_1 = DEBUG_G4_2 = 0
-    DEBUG_G1_2 = 1
+    DEBUG_G3_2 = 1
 
     if DEBUG_G1_1:
         # g1_small
@@ -643,7 +656,24 @@ if __name__ == "__main__":
 
         run_g2_all(path_g2, names_group_g2, mode='reward', select_J=True)
 
-    # path = '../save/'
+    if DEBUG_G3_1:
+        path = '../save/'
+        small_range = list(range(12,20,2))
+        names_g3 = [
+            's_{}_0.3_re_1500_no_Solver_'.format(s_r) for s_r in small_range
+            # 's_{}_ave_1500_no_Solver_'.format(s_r) for s_r in small_range
+        ]
+        run_g3(path, names_g3, small_range)
+
+    if DEBUG_G3_2:
+        path = '../save/'
+        small_range = list(range(12,20,2))
+        names_g3 = [
+            # 's_{}_0.3_re_1500_no_Solver_'.format(s_r) for s_r in small_range
+            's_{}_ave_1500_no_Solver_'.format(s_r) for s_r in small_range
+        ]
+        run_g3(path, names_g3, small_range, select_mem=True)
+
     # name = 's_14_0.3_re_1500_'
     # # g1_large
     # # name = 'l_24_ave_1500_'
@@ -668,10 +698,4 @@ if __name__ == "__main__":
     # run_g4(path, names, mode='reward', layout='ratio')
 
 
-    # small_range = list(range(12,20,2))
-    # names_g3 = [
-    #     's_{}_0.3_re_1500_no_Solver_'.format(s_r) for s_r in small_range
-    #     # 's_{}_ave_1500_no_Solver_'.format(s_r) for s_r in small_range
-    # ]
-    # run_g3(path, names_g3, small_range)
 
