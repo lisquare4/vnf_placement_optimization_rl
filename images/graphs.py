@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plot
-
+plot.rcParams.update({'font.size': 16})
 import numpy as np
 
 import csv
@@ -36,16 +36,25 @@ def render_g1(data, name, run_idx):
     # subplot
     # plot.plot(batch_list, reward_list, color='red', marker=">")
     # plot.plot(batch_list, penalty_list, color='green', marker="o")
-    plot.plot(batch_list, minibatchloss_list, color='green', marker="*")
+    plot.plot(np.divide(batch_list, 1000.), minibatchloss_list/1000., color='green', marker="*")
     lg =[
         # 'reward',
         # 'penalty',
         # 'minibatch_loss',
+        'FSCO',
     ]
+    plot.legend(lg)
     # plot.legend([l + str(run_idx) for l in lg])
     # plot.yscale('log')
     plot.ylabel('Loss function')
     plot.xlabel('Training epochs')
+    plot.xticks(fontsize=12)
+    plot.yticks(fontsize=12)
+    plot.text(6.3, -1.5, '$(\\times 10^3)$', fontsize=12)
+    plot.text(-.3, 13.5, '$(\\times 10^3)$', fontsize=12)
+    plot.grid()
+    plot.tight_layout()
+    plot.savefig("../images/g1.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
     plot.show()
 
 def render_g2(data, name, mode):
@@ -469,39 +478,37 @@ def run_g3(path, names, small_range):
     plot.xticks(X , ("12", "14", "16", "18"))
     plot.show()
 
-def run_g2_all(path, groups, name_range, mode):
+def run_g2_all(path, names,  mode):
 
     dataset = []
-    for group in groups:
-        names = group
-        for name_idx in range(len(names)):
-            with open(path + names[name_idx]+ "0" + "/learning_history.csv") as infile:
-                reader = csv.reader(infile, delimiter=',')
-                data = []
-                for row in reader:
-                    if row: # skip null row
-                        new_row = {}
+    for name_idx in range(len(names)):
+        with open(path + names[name_idx]+ "0" + "/learning_history.csv") as infile:
+            reader = csv.reader(infile, delimiter=',')
+            data = []
+            for row in reader:
+                if row: # skip null row
+                    new_row = {}
 
-                        for cell in row:
-                            key, value = cell.split(":")
-                            key = key.strip()
-                            if key == 'network_service[batch 0]' or key == "placement[batch 0]":
-                                pass
-                            else:
-                                value = float(value)
-                                new_row[key] = value
+                    for cell in row:
+                        key, value = cell.split(":")
+                        key = key.strip()
+                        if key == 'network_service[batch 0]' or key == "placement[batch 0]":
+                            pass
+                        else:
+                            value = float(value)
+                            new_row[key] = value
 
-                        data.append(new_row)
-            dataset.append(data)
+                    data.append(new_row)
+        dataset.append(data)
 
 
-    render_g2_all(dataset, names, name_range, mode)
+    render_g2_all(dataset, names, mode)
 
-def render_g2_all(dataset, names, name_range, line_class):
+def render_g2_all(dataset, names, line_class):
 
     lgs = []
     colors = [
-        'c', 'm', 'y', 'k', 'r'
+        'c', 'm', 'y', 'k', 'r','g', 'b'
     ]
     styles = [
         'None', '-', '--', '-.', ':'
@@ -535,60 +542,97 @@ def render_g2_all(dataset, names, name_range, line_class):
         else:
             print("[ERR] Fail to selector plot line class")
 
-        lg = [str(n)+ line_class for n in name_range]
+        # lg = [str(n)+ line_class for n in name_range]
+        lg = [
+            # '0.3 Penalty',
+            'Penalty-based strategy',
+            # '0.5 Penalty',
+            # '0.3 Reward',
+            'Reward-based strategy',
+            # '0.5 Reward',
+            'Average strategy',
+            # 'J=500',
+            # 'J=1000',
+            # 'J=1500',
+        ]
         lgs.extend(lg)
+
+        plot.ylabel('Network cost')
+        plot.xlabel('Training epochs')
 
     plot.legend(lgs)
     plot.show()
 
 if __name__ == "__main__":
-    path = '../save/'
-    name = 's_12_0.3_re_1500_'
-    names = [
-        's_12_0.3_re_1500_',
-        # 's_12_0.3_re_1500_',
-        # 's_12_ave_1500_',
-        's_14_0.3_re_1500_',
-        's_16_0.3_re_1500_',
-        's_18_0.3_re_1500_',
-    ]
+    DEBUG_G1_1 = DEBUG_G1_2 = \
+        DEBUG_G2_1 = DEBUG_G2_2 = \
+        DEBUG_G3_1 = DEBUG_G3_2 = DEBUG_G3_1 = \
+        DEBUG_G4_1 = DEBUG_G4_2 = 0
+    DEBUG_G2_1 = 1
+
+    if DEBUG_G1_1:
+        # g1_small
+        path = '../save/'
+        name = 's_14_0.3_re_1500_'
+        RUN_ALL = False
+        line_class_list = ['reward', 'penalty', 'minibatch_loss']
+        if RUN_ALL:
+            run_all_g1(path, name, 5, line_class_list[1])
+        else:
+            run_g1(path, name, 0)
+
+    if DEBUG_G1_2:
+        # g1_large
+        path = '../save/'
+        name = 'l_24_ave_1500_'
+        RUN_ALL = False
+        line_class_list = ['reward', 'penalty', 'minibatch_loss']
+        if RUN_ALL:
+            run_all_g1(path, name, 5, line_class_list[1])
+        else:
+            run_g1(path, name, 0)
+
+    if DEBUG_G2_1:
+        path_g2 = '../save_backup/save/'
+        names_group_g2 = []
+
+        names_group_g2.extend([
+            'g_0.3_pe_1500_',
+            'g_0.3_re_1500_',
+            'g_ave_1500_',
+        ])
+
+        run_g2_all(path_g2, names_group_g2, mode='reward')
+
+    # path = '../save/'
+    # name = 's_14_0.3_re_1500_'
+    # # g1_large
+    # # name = 'l_24_ave_1500_'
+    # names = [
+    #     's_12_0.3_re_1500_',
+    #     # 's_12_0.3_re_1500_',
+    #     # 's_12_ave_1500_',
+    #     's_14_0.3_re_1500_',
+    #     's_16_0.3_re_1500_',
+    #     's_18_0.3_re_1500_',
+    # ]
 
     # run_g2(path, name, mode='reward')
     # run_g2(path, name, mode='penalty')
 
     # blend_range = list(np.arange(.3,.6,.1))
     # blend_range = [round(br, 2) for br in blend_range]
-    #
-    # path_g2 = '../save_backup/save/'
-    # names_group_g2 =[]
-    # names_group_g2.extend([
-    #     'g_{}_pe_1000_'.format(br) for br in blend_range
-    #     # 's_{}_ave_1500_no_Solver_'.format(s_r) for s_r in small_range
-    # ])
-    # names_group_g2.extend([
-    #     'g_{}_re_1000_'.format(br) for br in blend_range
-    #     # 's_{}_ave_1500_no_Solver_'.format(s_r) for s_r in small_range
-    # ])
-    # names_group_g2.extend(['g_ave_1000_'])
-    # run_g2_all(path_g2, names_g2, blend_range, mode='reward')
+
 
 
     # run_g4(path, names, mode='reward', layout='value')
     # run_g4(path, names, mode='reward', layout='ratio')
 
-    # RUN_ALL = False
-    # line_class_list = ['reward', 'penalty', 'minibatch_loss']
-    # if RUN_ALL:
-    #     run_all_g1(path, name, 5, line_class_list[1])
-    # else:
-    #     for run_idx in range(5):
-    #         run_g1(path, name, run_idx)
 
-
-    small_range = list(range(12,20,2))
-    names_g3 = [
-        's_{}_0.3_re_1500_no_Solver_'.format(s_r) for s_r in small_range
-        # 's_{}_ave_1500_no_Solver_'.format(s_r) for s_r in small_range
-    ]
-    run_g3(path, names_g3, small_range)
+    # small_range = list(range(12,20,2))
+    # names_g3 = [
+    #     's_{}_0.3_re_1500_no_Solver_'.format(s_r) for s_r in small_range
+    #     # 's_{}_ave_1500_no_Solver_'.format(s_r) for s_r in small_range
+    # ]
+    # run_g3(path, names_g3, small_range)
 
