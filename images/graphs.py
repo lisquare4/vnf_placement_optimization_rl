@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plot
 plot.rcParams.update({'font.size': 16})
 import numpy as np
+import math
 
 import csv
 
@@ -50,8 +51,10 @@ def render_g1(data, name, run_idx):
     plot.xlabel('Training epochs')
     plot.xticks(fontsize=12)
     plot.yticks(fontsize=12)
-    plot.text(6.3, -1.5, '$(\\times 10^3)$', fontsize=12)
-    plot.text(-.3, 13.5, '$(\\times 10^3)$', fontsize=12)
+    # plot.text(6.3, -1.5, '$(\\times 10^3)$', fontsize=12)
+    # plot.text(-.3, 13.5, '$(\\times 10^3)$', fontsize=12)
+    plot.xlim([0,7])
+    plot.ylim([0,13])
     plot.grid()
     plot.tight_layout()
     plot.savefig("../images/g1.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
@@ -478,7 +481,7 @@ def run_g3(path, names, small_range):
     plot.xticks(X , ("12", "14", "16", "18"))
     plot.show()
 
-def run_g2_all(path, names,  mode):
+def run_g2_all(path, names,  mode, select_J=False):
 
     dataset = []
     for name_idx in range(len(names)):
@@ -502,9 +505,9 @@ def run_g2_all(path, names,  mode):
         dataset.append(data)
 
 
-    render_g2_all(dataset, names, mode)
+    render_g2_all(dataset, names, mode, select_J)
 
-def render_g2_all(dataset, names, line_class):
+def render_g2_all(dataset, names, line_class, select_J = False):
 
     lgs = []
     colors = [
@@ -513,6 +516,8 @@ def render_g2_all(dataset, names, line_class):
     styles = [
         'None', '-', '--', '-.', ':'
     ]
+    xs = []
+    ys = []
     for run_idx in range(len(names)):
         # 1. map same params result into same buckets
 
@@ -529,19 +534,25 @@ def render_g2_all(dataset, names, line_class):
         # 2. list sequences by params
 
         # subplot
-
+        batch_list = np.divide(batch_list, 1000.)
+        reward_list = np.divide(reward_list, 100.)
+        penalty_list = np.divide(penalty_list, 100.)
+        minibatchloss_list = np.divide(minibatchloss_list, 100.)
+        x = batch_list
+        xs.extend(x)
+        y = []
         if line_class == 'reward':
-            plot.plot(batch_list, reward_list,
-                      color=colors[run_idx], lw=1.)
+            y = reward_list
         elif line_class == 'penalty':
-            plot.plot(batch_list, penalty_list,
-                      color=colors[run_idx], lw=1.)
+            y = penalty_list
         elif line_class == 'minibatch_loss':
-            plot.plot(batch_list, minibatchloss_list,
-                      color=colors[run_idx], lw=1.)
+            y = minibatchloss_list
         else:
             print("[ERR] Fail to selector plot line class")
 
+        ys.extend(y)
+        plot.plot(x, y,
+                  color=colors[run_idx], lw=1.)
         # lg = [str(n)+ line_class for n in name_range]
         lg = [
             # '0.3 Penalty',
@@ -555,12 +566,25 @@ def render_g2_all(dataset, names, line_class):
             # 'J=1000',
             # 'J=1500',
         ]
+        if select_J:
+            lg = [
+                'J=500',
+                'J=1000',
+                'J=1500',
+            ]
         lgs.extend(lg)
 
         plot.ylabel('Network cost')
         plot.xlabel('Training epochs')
 
     plot.legend(lgs)
+    plot.xticks(np.arange(min(xs), max(xs), 1), fontsize=12)
+    plot.yticks(np.arange(math.floor(min(ys)), math.ceil(max(ys)), 2), fontsize=12)
+    plot.text(max(xs)-.3, 56.5, '$(\\times 10^3)$', fontsize=12)
+    plot.text(-.0, 72.5, '$(\\times 10^2)$', fontsize=12)
+    plot.grid()
+    plot.xlim([0,7])
+    plot.savefig("../images/g2.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
     plot.show()
 
 if __name__ == "__main__":
@@ -573,7 +597,7 @@ if __name__ == "__main__":
     if DEBUG_G1_1:
         # g1_small
         path = '../save/'
-        name = 's_14_0.3_re_1500_'
+        name = 'l_24_ave_1500_'
         RUN_ALL = False
         line_class_list = ['reward', 'penalty', 'minibatch_loss']
         if RUN_ALL:
@@ -584,7 +608,7 @@ if __name__ == "__main__":
     if DEBUG_G1_2:
         # g1_large
         path = '../save/'
-        name = 'l_24_ave_1500_'
+        name = 's_14_0.3_re_1500_'
         RUN_ALL = False
         line_class_list = ['reward', 'penalty', 'minibatch_loss']
         if RUN_ALL:
@@ -592,7 +616,7 @@ if __name__ == "__main__":
         else:
             run_g1(path, name, 0)
 
-    if DEBUG_G2_1:
+    if DEBUG_G2_2:
         path_g2 = '../save_backup/save/'
         names_group_g2 = []
 
@@ -603,6 +627,18 @@ if __name__ == "__main__":
         ])
 
         run_g2_all(path_g2, names_group_g2, mode='reward')
+
+    if DEBUG_G2_1:
+        path_g2 = '../save_backup/save/'
+        names_group_g2 = []
+
+        names_group_g2.extend([
+            's_ave_500_',
+            's_ave_1000_',
+            's_ave_1500_',
+        ])
+
+        run_g2_all(path_g2, names_group_g2, mode='reward', select_J=True)
 
     # path = '../save/'
     # name = 's_14_0.3_re_1500_'
