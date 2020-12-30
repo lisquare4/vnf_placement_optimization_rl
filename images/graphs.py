@@ -33,7 +33,7 @@ def render_g1(data, name, run_idx):
 
     # 2. list sequences by params
 
-    x = np.divide(batch_list, 1000.)
+    x = batch_list
     y = minibatchloss_list/1000.
     # subplot
     # plot.plot(batch_list, reward_list, color='red', marker=">")
@@ -50,12 +50,12 @@ def render_g1(data, name, run_idx):
     # plot.yscale('log')
     plot.ylabel('Loss function')
     plot.xlabel('Training epochs')
-    plot.xticks(np.arange(min(x), max(x)+1, 2), fontsize=12)
+    plot.xticks(np.arange(min(x), max(x)+500, 1000), fontsize=12)
     plot.yticks(fontsize=12)
     # plot.yticks(np.arange(math.floor(min(y)), math.ceil(max(y)), 1), fontsize=12)
-    plot.text(max(x)+.5, min(y)-.64, '$(\\times 10^3)$', fontsize=12)
-    plot.text(min(x), max(y)+.3, '$(\\times 10^2)$', fontsize=12)
-    plot.xlim([min(x), max(x)+1])
+    # plot.text(max(x)+.5, min(y)-.64, '$(\\times 10^3)$', fontsize=12)
+    plot.text(min(x), max(y)+.35, '$(\\times 10^2)$', fontsize=12)
+    plot.xlim([min(x), max(x)+500])
     # plot.ylim([math.floor(min(y)), max(y)])
     plot.grid()
     plot.tight_layout()
@@ -633,7 +633,7 @@ if __name__ == "__main__":
         DEBUG_G2_1 = DEBUG_G2_2 = \
         DEBUG_G3_1 = DEBUG_G3_2 = \
         DEBUG_G4_1 = DEBUG_G4_2 = 0
-    DEBUG_G4_2 = 1
+    DEBUG_G1_2 = 1
     # DEBUG_G3_2 = 1
 
     if DEBUG_G1_1:
