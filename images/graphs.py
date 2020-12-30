@@ -194,6 +194,9 @@ def render_g4(result_list, mode, layout):
             ax[0].legend(['NCO'], loc="upper left", framealpha=.5)
 
             plot.setp(ax[0], xticklabels=[12, 14, 16, 18])
+            plot.setp(ax[0], ylim=(2000,6000))
+            plot.setp(ax[0], yticks=[2000,4000, 6000], yticklabels=[2,4,6])
+            fig.text(0.06, .96, '$(\\times{10^3})$', va='center', fontsize=12)
             ax[0].tick_params(labelsize=12)
             ax[0].grid()
 
@@ -205,7 +208,9 @@ def render_g4(result_list, mode, layout):
                 box.set(hatch='\\')
 
             plot.setp(ax[1], xticklabels=[12, 14, 16, 18])
-            # plot.setp(ax[1], ylim=(0,8000))
+            plot.setp(ax[1], ylim=(2000,6000))
+            plot.setp(ax[1], yticks=[2000,4000, 6000], yticklabels=[2,4,6])
+            fig.text(0.06, .66, '$(\\times{10^3})$', va='center', fontsize=12)
             ax[1].tick_params(labelsize=12)
             ax[1].grid()
 
@@ -220,6 +225,9 @@ def render_g4(result_list, mode, layout):
             plot.setp(ax[2], xticklabels=[12, 14, 16, 18])
 
             ax[2].tick_params(labelsize=12)
+            plot.setp(ax[2], ylim=(2000,6000))
+            fig.text(0.06, .36, '$(\\times{10^3})$', va='center', fontsize=12)
+            plot.setp(ax[2], yticks=[2000,4000, 6000], yticklabels=[2,4,6])
             ax[2].grid()
             fig.text(-.03, 0.5, y_desc, va='center', rotation='vertical')
             ax[2].set_xlabel(x_lab)
