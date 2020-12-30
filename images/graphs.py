@@ -175,47 +175,57 @@ def render_g4(result_list, mode, layout):
         plot.setp(ax, ylabel=y_lab)
         x_lab = "SFC length"
         plot.setp(ax, xlabel=x_lab)
-
+        plot.xticks(fontsize=12)
+        plot.yticks(fontsize=12)
+        plot.grid()
         fig.tight_layout()
+        plot.savefig("../images/g4-1.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
         plot.show()
 
     else:
         y_desc = "Network cost"
+        x_lab = "SFC length"
         if mode == 'reward':
             fig, ax = plot.subplots(3,1)
-            ax[0].boxplot(seq_lists[0], showmeans=True, showfliers=False, widths=.25)
+            bp1 = ax[0].boxplot(seq_lists[0], showmeans=True, showfliers=False, widths=.25, patch_artist=True )
+            for box in bp1['boxes']:
+                box.set(facecolor='green')
+                box.set(hatch='/')
             ax[0].legend(['NCO'], loc="upper left", framealpha=.5)
-            y_lab = y_desc
-            plot.setp(ax[0], ylabel=y_lab)
 
-            x_lab = "SFC length"
-            plot.setp(ax[0], xlabel=x_lab)
             plot.setp(ax[0], xticklabels=[12, 14, 16, 18])
-            plot.setp(ax[0], ylim=(0,8000))
+            ax[0].tick_params(labelsize=12)
+            ax[0].grid()
 
             ##############
-            ax[1].boxplot(seq_lists[2], showmeans=True, showfliers=False, widths=.25)
+            bp2 = ax[1].boxplot(seq_lists[2], showmeans=True, showfliers=False, widths=.25, patch_artist=True)
             ax[1].legend(['BAB'], loc="upper left", framealpha=.5)
-            y_lab = y_desc
-            plot.setp(ax[1], ylabel=y_lab)
+            for box in bp2['boxes']:
+                box.set(facecolor='lightblue')
+                box.set(hatch='\\')
 
-            x_lab = "SFC length"
-            plot.setp(ax[1], xlabel=x_lab)
             plot.setp(ax[1], xticklabels=[12, 14, 16, 18])
-            plot.setp(ax[1], ylim=(0,8000))
+            # plot.setp(ax[1], ylim=(0,8000))
+            ax[1].tick_params(labelsize=12)
+            ax[1].grid()
 
             ###############
-            ax[2].boxplot(seq_lists[3], showmeans=True, showfliers=False, widths=.25)
+            bp3=ax[2].boxplot(seq_lists[3], showmeans=True, showfliers=False, widths=.25, patch_artist=True)
+            for box in bp3['boxes']:
+                box.set(facecolor='cyan')
+                box.set(hatch='x')
             ax[2].legend(['FSCO'], loc="upper left", framealpha=.5)
-            y_lab = y_desc
-            plot.setp(ax[2], ylabel=y_lab)
-            plot.setp(ax[2], ylim=(0,8000))
+            # plot.setp(ax[2], ylim=(0,8000))
 
-            x_lab = "SFC length"
-            plot.setp(ax[2], xlabel=x_lab)
             plot.setp(ax[2], xticklabels=[12, 14, 16, 18])
 
+            ax[2].tick_params(labelsize=12)
+            ax[2].grid()
+            fig.text(-.03, 0.5, y_desc, va='center', rotation='vertical')
+            ax[2].set_xlabel(x_lab)
+
             fig.tight_layout()
+            plot.savefig("../images/g4-2.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
             plot.show()
 
         elif mode == 'penalty':
@@ -608,7 +618,8 @@ if __name__ == "__main__":
         DEBUG_G2_1 = DEBUG_G2_2 = \
         DEBUG_G3_1 = DEBUG_G3_2 = \
         DEBUG_G4_1 = DEBUG_G4_2 = 0
-    DEBUG_G3_2 = 1
+    DEBUG_G4_1 = 1
+    # DEBUG_G3_2 = 1
 
     if DEBUG_G1_1:
         # g1_small
@@ -660,8 +671,8 @@ if __name__ == "__main__":
         path = '../save/'
         small_range = list(range(12,20,2))
         names_g3 = [
-            's_{}_0.3_re_1500_no_Solver_'.format(s_r) for s_r in small_range
-            # 's_{}_ave_1500_no_Solver_'.format(s_r) for s_r in small_range
+            # 's_{}_0.3_re_1500_no_Solver_'.format(s_r) for s_r in small_range
+            's_{}_ave_1500_no_Solver_'.format(s_r) for s_r in small_range
         ]
         run_g3(path, names_g3, small_range)
 
@@ -669,11 +680,34 @@ if __name__ == "__main__":
         path = '../save/'
         small_range = list(range(12,20,2))
         names_g3 = [
-            # 's_{}_0.3_re_1500_no_Solver_'.format(s_r) for s_r in small_range
-            's_{}_ave_1500_no_Solver_'.format(s_r) for s_r in small_range
+            's_{}_0.3_re_1500_no_Solver_'.format(s_r) for s_r in small_range
+            # 's_{}_ave_1500_no_Solver_'.format(s_r) for s_r in small_range
         ]
         run_g3(path, names_g3, small_range, select_mem=True)
 
+    if DEBUG_G4_1:
+        path = '../save/'
+        names = [
+            's_12_0.3_re_1500_',
+            # 's_12_0.3_re_1500_',
+            # 's_12_ave_1500_',
+            's_14_0.3_re_1500_',
+            's_16_0.3_re_1500_',
+            's_18_0.3_re_1500_',
+        ]
+        run_g4(path, names, mode='reward', layout='value')
+
+    if DEBUG_G4_2:
+        path = '../save/'
+        names = [
+            's_12_0.3_re_1500_',
+            # 's_12_0.3_re_1500_',
+            # 's_12_ave_1500_',
+            's_14_0.3_re_1500_',
+            's_16_0.3_re_1500_',
+            's_18_0.3_re_1500_',
+        ]
+        run_g4(path, names, mode='reward', layout='ratio')
     # name = 's_14_0.3_re_1500_'
     # # g1_large
     # # name = 'l_24_ave_1500_'
