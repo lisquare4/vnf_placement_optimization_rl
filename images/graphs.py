@@ -63,7 +63,10 @@ def render_g1(data, name, run_idx, select_small):
     # plot.ylim([math.floor(min(y)), max(y)])
     plot.grid()
     plot.tight_layout()
-    plot.savefig("../images/g1.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
+    if select_small:
+        plot.savefig("../images/hhj4-1-1.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
+    else:
+        plot.savefig("../images/hhj4-1-2.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
     plot.show()
 
 def render_g2(data, name, mode):
@@ -474,9 +477,9 @@ def run_g3(path, names, small_range, select_mem=False):
     plot.yticks(fontsize=12)
     plot.grid()
     if select_mem:
-        plot.savefig("../images/g3-2.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
+        plot.savefig("../images/hhj4-3-2.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
     else:
-        plot.savefig("../images/g3-1.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
+        plot.savefig("../images/hhj4-3-1.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
     plot.show()
 
     if False:
@@ -497,7 +500,7 @@ def run_g3(path, names, small_range, select_mem=False):
         plot.xticks(X , ("12", "14", "16", "18"), fontsize=12)
         plot.yticks(fontsize=12)
         plot.grid()
-        plot.savefig("../images/g3-2.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
+        plot.savefig("../images/hhj4-3-2.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
         plot.show()
 
     if not select_mem:
@@ -518,7 +521,7 @@ def run_g3(path, names, small_range, select_mem=False):
         plot.xticks(X , ("12", "14", "16", "18"), fontsize=12)
         plot.yticks(fontsize=12)
         plot.grid()
-        plot.savefig("../images/g3-3.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
+        plot.savefig("../images/hhj4-3-3.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
         plot.show()
 
 def run_g2_all(path, names,  mode, select_J=False):
@@ -639,7 +642,10 @@ def render_g2_all(dataset, names, line_class, select_J = False):
         plot.xlim([min(xs), max(xs) -2000])
     #plot.ylim([min(ys)- offset, max(ys)+.104])
     plot.ylim([min(ys)- offset, max(ys)]) #graph2-2
-    plot.savefig("../images/g2.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
+    if select_J:
+        plot.savefig("../images/hhj4-2-1.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
+    else:
+        plot.savefig("../images/hhj4-2-2.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
     plot.show()
 
 if __name__ == "__main__":
@@ -647,7 +653,7 @@ if __name__ == "__main__":
         DEBUG_G2_1 = DEBUG_G2_2 = \
         DEBUG_G3_1 = DEBUG_G3_2 = \
         DEBUG_G4_1 = DEBUG_G4_2 = 0
-    DEBUG_G1_1 = 1
+    DEBUG_G2_1 = 1
     # DEBUG_G3_2 = 1
 
     if DEBUG_G1_1:
