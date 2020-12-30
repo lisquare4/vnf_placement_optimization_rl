@@ -33,11 +33,12 @@ def render_g1(data, name, run_idx):
 
     # 2. list sequences by params
 
-
+    x = np.divide(batch_list, 1000.)
+    y = minibatchloss_list/1000.
     # subplot
     # plot.plot(batch_list, reward_list, color='red', marker=">")
     # plot.plot(batch_list, penalty_list, color='green', marker="o")
-    plot.plot(np.divide(batch_list, 1000.), minibatchloss_list/1000., color='green', marker="*")
+    plot.plot(x, y, color='green', marker="*")
     lg =[
         # 'reward',
         # 'penalty',
@@ -49,12 +50,13 @@ def render_g1(data, name, run_idx):
     # plot.yscale('log')
     plot.ylabel('Loss function')
     plot.xlabel('Training epochs')
-    plot.xticks(fontsize=12)
+    plot.xticks(np.arange(min(x), max(x)+1, 2), fontsize=12)
     plot.yticks(fontsize=12)
-    # plot.text(6.3, -1.5, '$(\\times 10^3)$', fontsize=12)
-    # plot.text(-.3, 13.5, '$(\\times 10^3)$', fontsize=12)
-    plot.xlim([0,7])
-    plot.ylim([0,13])
+    # plot.yticks(np.arange(math.floor(min(y)), math.ceil(max(y)), 1), fontsize=12)
+    plot.text(max(x)+.5, min(y)-.64, '$(\\times 10^3)$', fontsize=12)
+    plot.text(min(x), max(y)+.3, '$(\\times 10^2)$', fontsize=12)
+    plot.xlim([min(x), max(x)+1])
+    # plot.ylim([math.floor(min(y)), max(y)])
     plot.grid()
     plot.tight_layout()
     plot.savefig("../images/g1.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
@@ -556,7 +558,7 @@ def render_g2_all(dataset, names, line_class, select_J = False):
         # lg = [str(n)+ line_class for n in name_range]
         lg = [
             # '0.3 Penalty',
-            'Penalty-based strategy',
+            'Errer-rate-based strategy',
             # '0.5 Penalty',
             # '0.3 Reward',
             'Reward-based strategy',
@@ -580,10 +582,11 @@ def render_g2_all(dataset, names, line_class, select_J = False):
     plot.legend(lgs)
     plot.xticks(np.arange(min(xs), max(xs), 1), fontsize=12)
     plot.yticks(np.arange(math.floor(min(ys)), math.ceil(max(ys)), 2), fontsize=12)
-    plot.text(max(xs)-.3, 56.5, '$(\\times 10^3)$', fontsize=12)
-    plot.text(-.0, 72.5, '$(\\times 10^2)$', fontsize=12)
+    plot.text(max(xs)-.3, min(ys)-.9, '$(\\times 10^3)$', fontsize=12)
+    plot.text(min(xs), max(ys)+.1, '$(\\times 10^2)$', fontsize=12)
     plot.grid()
-    plot.xlim([0,7])
+    plot.xlim([min(xs), max(xs)])
+    plot.ylim([math.floor(min(ys)), max(ys)])
     plot.savefig("../images/g2.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
     plot.show()
 
@@ -592,7 +595,7 @@ if __name__ == "__main__":
         DEBUG_G2_1 = DEBUG_G2_2 = \
         DEBUG_G3_1 = DEBUG_G3_2 = DEBUG_G3_1 = \
         DEBUG_G4_1 = DEBUG_G4_2 = 0
-    DEBUG_G2_1 = 1
+    DEBUG_G1_2 = 1
 
     if DEBUG_G1_1:
         # g1_small
