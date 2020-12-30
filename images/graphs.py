@@ -7,7 +7,7 @@ import csv
 
 from scipy import optimize
 
-def render_g1(data, name, run_idx):
+def render_g1(data, name, run_idx, select_small):
     """
     Render csv data into box graph
     csv format
@@ -49,12 +49,16 @@ def render_g1(data, name, run_idx):
     # plot.legend([l + str(run_idx) for l in lg])
     # plot.yscale('log')
     plot.ylabel('Loss function')
-    plot.xlabel('Training epochs')
+    plot.xlabel('Local training round')
     plot.xticks(np.arange(min(x), max(x)+500, 1000), fontsize=12)
     plot.yticks(fontsize=12)
     # plot.yticks(np.arange(math.floor(min(y)), math.ceil(max(y)), 1), fontsize=12)
     # plot.text(max(x)+.5, min(y)-.64, '$(\\times 10^3)$', fontsize=12)
-    plot.text(min(x), max(y)+.35, '$(\\times 10^2)$', fontsize=12)
+    if not select_small:
+        plot.text(min(x), max(y)+.33, '$(\\times 10^2)$', fontsize=12)
+    else:
+        plot.text(min(x), max(y)+.8, '$(\\times 10^2)$', fontsize=12)
+
     plot.xlim([min(x), max(x)+500])
     # plot.ylim([math.floor(min(y)), max(y)])
     plot.grid()
@@ -321,7 +325,7 @@ def render_g1_all(dataset, name, num_run, line_class):
     plot.suptitle(name + 'all')
     plot.show()
 
-def run_g1(path, name, run_idx):
+def run_g1(path, name, run_idx, select_small=False):
     with open(path + name + str(run_idx) + "/learning_history.csv") as infile:
         reader = csv.reader(infile, delimiter=',')
         data = []
@@ -341,7 +345,7 @@ def run_g1(path, name, run_idx):
                 data.append(new_row)
 
 
-        render_g1(data, name, run_idx)
+        render_g1(data, name, run_idx, select_small)
 
 def run_all_g1(path, name, num_run, line_class):
 
@@ -611,19 +615,28 @@ def render_g2_all(dataset, names, line_class, select_J = False):
         lgs.extend(lg)
 
         plot.ylabel('Network cost')
-        plot.xlabel('Training epochs')
+        plot.xlabel('Local training round')
 
-    offset = .015  #graph-2- 1
-    #offset = -.004 #graph-2-2
+    if select_J:
+        offset = .015  #graph-2- 1
+    else:
+        offset = -.004 #graph-2-2
     plot.legend(lgs)
     plot.xticks(np.arange(min(xs), max(xs)+200, 1000), fontsize=12)
-    plot.yticks(np.arange(min(ys)- offset, max(ys), .15), fontsize=12)
+    if select_J:
+        plot.yticks(np.arange(min(ys)- offset, max(ys), .2), fontsize=12)
+    else:
+        plot.yticks(np.arange(min(ys) - offset, max(ys), .15), fontsize=12)
     #plot.text(max(xs)-.75, min(ys) - .105, '$(\\times 10^3)$', fontsize=12)
-    #plot.text(min(xs), max(ys) + .01, '$(\\times 10^3)$', fontsize=12)
-    plot.text(min(xs), max(ys)+.01, '$(\\times 10^3)$', fontsize=12)
+    if select_J:
+        plot.text(min(xs), max(ys) + .01, '$(\\times 10^3)$', fontsize=12)
+    else:
+        plot.text(min(xs), max(ys)+.02, '$(\\times 10^3)$', fontsize=12)
     plot.grid()
-    plot.xlim([min(xs), max(xs)+100])
-    #plot.xlim([min(xs), max(xs) -2000])
+    if select_J:
+        plot.xlim([min(xs), max(xs)+100])
+    else:
+        plot.xlim([min(xs), max(xs) -2000])
     #plot.ylim([min(ys)- offset, max(ys)+.104])
     plot.ylim([min(ys)- offset, max(ys)]) #graph2-2
     plot.savefig("../images/g2.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
@@ -634,7 +647,7 @@ if __name__ == "__main__":
         DEBUG_G2_1 = DEBUG_G2_2 = \
         DEBUG_G3_1 = DEBUG_G3_2 = \
         DEBUG_G4_1 = DEBUG_G4_2 = 0
-    DEBUG_G2_1 = 1
+    DEBUG_G1_1 = 1
     # DEBUG_G3_2 = 1
 
     if DEBUG_G1_1:
@@ -646,7 +659,7 @@ if __name__ == "__main__":
         if RUN_ALL:
             run_all_g1(path, name, 5, line_class_list[1])
         else:
-            run_g1(path, name, 0)
+            run_g1(path, name, 0, select_small=True)
 
     if DEBUG_G1_2:
         # g1_large
