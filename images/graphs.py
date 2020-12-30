@@ -176,7 +176,10 @@ def render_g4(result_list, mode, layout):
         x_lab = "SFC length"
         plot.setp(ax, xlabel=x_lab)
         plot.xticks(fontsize=12)
-        plot.yticks(fontsize=12)
+        plot.yticks(np.arange(0,100,10), fontsize=12)
+        #plot.ylim([-2,90])
+        #plot.xlim([11.5,18])
+        #plot.xticks(np.arange(12,18.1,1.), fontsize=12)
         plot.grid()
         fig.tight_layout()
         plot.savefig("../images/g4-1.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
@@ -567,10 +570,10 @@ def render_g2_all(dataset, names, line_class, select_J = False):
         # 2. list sequences by params
 
         # subplot
-        batch_list = np.divide(batch_list, 1000.)
-        reward_list = np.divide(reward_list, 100.)
-        penalty_list = np.divide(penalty_list, 100.)
-        minibatchloss_list = np.divide(minibatchloss_list, 100.)
+        batch_list = np.divide(batch_list, 1.)
+        reward_list = np.divide(reward_list, 1000.)
+        penalty_list = np.divide(penalty_list, 1000.)
+        minibatchloss_list = np.divide(minibatchloss_list, 1000.)
         x = batch_list
         xs.extend(x)
         y = []
@@ -610,14 +613,18 @@ def render_g2_all(dataset, names, line_class, select_J = False):
         plot.ylabel('Network cost')
         plot.xlabel('Training epochs')
 
+    # offset = .015  #graph-2- 1
+    offset = -.004 #graph-2-2
     plot.legend(lgs)
-    plot.xticks(np.arange(min(xs), max(xs), 1), fontsize=12)
-    plot.yticks(np.arange(math.floor(min(ys)), math.ceil(max(ys)), 2), fontsize=12)
-    plot.text(max(xs)-.3, min(ys)-.9, '$(\\times 10^3)$', fontsize=12)
-    plot.text(min(xs), max(ys)+.1, '$(\\times 10^2)$', fontsize=12)
+    plot.xticks(np.arange(min(xs), max(xs)+200, 1000), fontsize=12)
+    plot.yticks(np.arange(min(ys)- offset, max(ys)+0.12, .15), fontsize=12)
+    #plot.text(max(xs)-.75, min(ys) - .105, '$(\\times 10^3)$', fontsize=12)
+    plot.text(min(xs), max(ys) + .01, '$(\\times 10^3)$', fontsize=12)
     plot.grid()
-    plot.xlim([min(xs), max(xs)])
-    plot.ylim([math.floor(min(ys)), max(ys)])
+    #plot.xlim([min(xs), max(xs)+100])
+    plot.xlim([min(xs), max(xs) -2000])
+    plot.ylim([min(ys)- offset, max(ys)+.104])
+    #plot.ylim([min(ys)- offset, max(ys)+.104]) graph2-2
     plot.savefig("../images/g2.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
     plot.show()
 
@@ -626,7 +633,7 @@ if __name__ == "__main__":
         DEBUG_G2_1 = DEBUG_G2_2 = \
         DEBUG_G3_1 = DEBUG_G3_2 = \
         DEBUG_G4_1 = DEBUG_G4_2 = 0
-    DEBUG_G4_1 = 1
+    DEBUG_G4_2 = 1
     # DEBUG_G3_2 = 1
 
     if DEBUG_G1_1:
