@@ -2,7 +2,7 @@
 small_env = '--min_length=12 --max_length=12 --num_layers=1 --hidden_dim=32 --num_cpus=10 --env_profile="small_default" --num_epoch=10000 '
 big_env = '--min_length=20 --max_length=20 --num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=20000 '
 
-large_env_base = '--num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=5000 '
+large_env_base = '--num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=10000 '
 small_env_base = '--num_layers=1 --hidden_dim=32 --num_cpus=10 --env_profile="small_default" --num_epoch=10000 '
 
 
@@ -15,8 +15,8 @@ trend_mode = [
 
 # trend_coef = ['0.3', '0.4', '0.5']
 # iters = ['500', '1000', '1500']
-trend_coef = ['0.5']
-iters = ['1000']
+trend_coef = ['0.4']
+iters = ['1500']
 s_env_seqs = ['12', '14', '16', '18']
 l_env_seqs = ['20', '24', '28', '30']
 
@@ -53,7 +53,6 @@ cmd = ''
 #                   "--cycle_iter={} ".format(it) + \
 #                   "--save_to=save/{}".format(save_path)
 #             f.write(cmd + '\n')
-#             f.write('\n')
 
 
 def gen_test_cmd():
@@ -91,7 +90,7 @@ def gen_test_cmd():
 
 def gen_train_cmd():
 
-    with open('fl_script4.txt', 'w') as f:
+    with open('fl_script5.txt', 'w') as f:
         for env_seq in l_env_seqs:
             env = "--min_length={} --max_length={} ".format(env_seq, env_seq) + large_env_base
             for it in iters:
@@ -123,7 +122,6 @@ def gen_train_cmd():
                       "--cycle_iter={} ".format(it) + \
                       "--save_to=save/{}".format(save_path)
                 f.write(cmd + '\n')
-                f.write('\n')
 
 if __name__ == "__main__":
     gen_train_cmd()
