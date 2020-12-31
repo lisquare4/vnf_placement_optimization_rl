@@ -62,6 +62,7 @@ misc_arg.add_argument('--load_from', type=str, default='save/model', help='loade
 misc_arg.add_argument('--fl_load_from', type=str, default='save/model', help='loader fl sub directory')
 misc_arg.add_argument('--log_dir', type=str, default='summary/repo', help='summary writer log directory')
 misc_arg.add_argument('--solver_on', type=str2bool, default=False, help='Compare with solver or not')
+misc_arg.add_argument('--GPU_select', type=int, default=3, help='Select Running GPU')
 
 
 def get_config():
