@@ -813,6 +813,8 @@ def app(config):
 if __name__ == "__main__":
 
     config, _ = get_config()
+    if config.GPU_select in range(8):
+        os.environ["CUDA_VISIBLE_DEVICES"]= str(config.GPU_select)
     app(config)
 
     # path = config.save_to

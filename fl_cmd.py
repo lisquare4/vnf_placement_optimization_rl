@@ -2,7 +2,7 @@
 small_env = '--min_length=12 --max_length=12 --num_layers=1 --hidden_dim=32 --num_cpus=10 --env_profile="small_default" --num_epoch=10000 '
 big_env = '--min_length=20 --max_length=20 --num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=20000 '
 
-large_env_base = '--num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=20000 '
+large_env_base = '--num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=5000 '
 small_env_base = '--num_layers=1 --hidden_dim=32 --num_cpus=10 --env_profile="small_default" --num_epoch=10000 '
 
 
@@ -91,9 +91,9 @@ def gen_test_cmd():
 
 def gen_train_cmd():
 
-    with open('fl_script3.txt', 'w') as f:
-        for env_seq in s_env_seqs:
-            env = "--min_length={} --max_length={} ".format(env_seq, env_seq) + small_env_base
+    with open('fl_script4.txt', 'w') as f:
+        for env_seq in l_env_seqs:
+            env = "--min_length={} --max_length={} ".format(env_seq, env_seq) + large_env_base
             for it in iters:
                 for tm in trend_mode:
                     for tc in trend_coef:
