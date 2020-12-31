@@ -51,16 +51,22 @@ def render_g1(data, name, run_idx, select_small):
     plot.ylabel('Loss function')
     plot.xlabel('Local training round')
     plot.xticks(np.arange(min(x), max(x)+500, 1000), fontsize=12)
-    plot.yticks(fontsize=12)
+    if select_small:
+        plot.yticks(fontsize=12)
+    else:
+        plot.yticks(fontsize=12)
     # plot.yticks(np.arange(math.floor(min(y)), math.ceil(max(y)), 1), fontsize=12)
     # plot.text(max(x)+.5, min(y)-.64, '$(\\times 10^3)$', fontsize=12)
     if not select_small:
-        plot.text(min(x), max(y)+.33, '$(\\times 10^2)$', fontsize=12)
+        plot.text(min(x), math.ceil(max(y))+.05, '$(\\times 10^2)$', fontsize=12)
     else:
-        plot.text(min(x), max(y)+.8, '$(\\times 10^2)$', fontsize=12)
+        plot.text(min(x), math.ceil(max(y))+1.1, '$(\\times 10^2)$', fontsize=12)
 
     plot.xlim([min(x), max(x)+500])
-    # plot.ylim([math.floor(min(y)), max(y)])
+    if select_small:
+        plot.ylim([min(y) - .5, math.ceil(max(y))+1 ])
+    else:
+        plot.ylim([min(y) - .2, math.ceil(max(y)) ])
     plot.grid()
     plot.tight_layout()
     if select_small:
@@ -183,8 +189,8 @@ def render_g4(result_list, mode, layout):
         x_lab = "SFC length"
         plot.setp(ax, xlabel=x_lab)
         plot.xticks(fontsize=12)
-        plot.yticks(np.arange(0,100,10), fontsize=12)
-        #plot.ylim([-2,90])
+        plot.yticks(np.arange(0,110,10), fontsize=12)
+        plot.ylim([-2,100])
         #plot.xlim([11.5,18])
         #plot.xticks(np.arange(12,18.1,1.), fontsize=12)
         plot.grid()
@@ -653,7 +659,7 @@ if __name__ == "__main__":
         DEBUG_G2_1 = DEBUG_G2_2 = \
         DEBUG_G3_1 = DEBUG_G3_2 = \
         DEBUG_G4_1 = DEBUG_G4_2 = 0
-    DEBUG_G2_1 = 1
+    DEBUG_G4_2 = 1
     # DEBUG_G3_2 = 1
 
     if DEBUG_G1_1:
