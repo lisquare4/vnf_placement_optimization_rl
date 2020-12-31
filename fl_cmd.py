@@ -15,10 +15,10 @@ trend_mode = [
 
 # trend_coef = ['0.3', '0.4', '0.5']
 # iters = ['500', '1000', '1500']
-trend_coef = ['0.3']
-iters = ['1500']
-s_env_seqs = ['12', '14', '16', '18', '20']
-l_env_seqs = ['22', '24', '26', '28', '30']
+trend_coef = ['0.4']
+iters = ['1000']
+s_env_seqs = ['12', '14', '16', '18']
+l_env_seqs = ['20', '24', '28', '30']
 
 cmd = ''
 
@@ -66,7 +66,7 @@ def gen_test_cmd():
                 for tm in trend_mode:
                     for tc in trend_coef:
                         save_path = 's_{}_{}_{}_{}'.format(env_seq, tc, tm.strip('"')[:2], it)
-                        if int(env_seq) >= 22:
+                        if int(env_seq) >= 20:
                             path_list = list(save_path)
                             path_list[0] = 'l'
                             save_path = ''.join(path_list)
@@ -79,7 +79,7 @@ def gen_test_cmd():
                 tm = 'ave'
                 tc = '0.5'
                 save_path = 's_{}_{}_{}'.format(env_seq,tm, it)
-                if int(env_seq) >= 22:
+                if int(env_seq) >= 20:
                     path_list = list(save_path)
                     path_list[0] = 'l'
                     save_path = ''.join(path_list)
@@ -91,14 +91,14 @@ def gen_test_cmd():
 
 def gen_train_cmd():
 
-    with open('fl_script2.txt', 'w') as f:
+    with open('fl_script3.txt', 'w') as f:
         for env_seq in s_env_seqs:
             env = "--min_length={} --max_length={} ".format(env_seq, env_seq) + small_env_base
             for it in iters:
                 for tm in trend_mode:
                     for tc in trend_coef:
                         save_path = 's_{}_{}_{}_{}_'.format(env_seq, tc, tm.strip('"')[:2], it)
-                        if int(env_seq) >= 22:
+                        if int(env_seq) >= 20:
                             path_list = list(save_path)
                             path_list[0] = 'l'
                             save_path = ''.join(path_list)
@@ -113,7 +113,7 @@ def gen_train_cmd():
                 tm = 'ave'
                 tc = '0.5'
                 save_path = 's_{}_{}_{}_'.format(env_seq,tm, it)
-                if int(env_seq) >= 22:
+                if int(env_seq) >= 20:
                     path_list = list(save_path)
                     path_list[0] = 'l'
                     save_path = ''.join(path_list)
@@ -126,5 +126,5 @@ def gen_train_cmd():
                 f.write('\n')
 
 if __name__ == "__main__":
-    # gen_train_cmd()
-    gen_test_cmd()
+    gen_train_cmd()
+    # gen_test_cmd()
