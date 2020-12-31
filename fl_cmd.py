@@ -15,7 +15,7 @@ trend_mode = [
 
 # trend_coef = ['0.3', '0.4', '0.5']
 # iters = ['500', '1000', '1500']
-trend_coef = ['0.4']
+trend_coef = ['0.5']
 iters = ['1000']
 s_env_seqs = ['12', '14', '16', '18']
 l_env_seqs = ['20', '24', '28', '30']

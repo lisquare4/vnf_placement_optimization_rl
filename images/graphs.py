@@ -159,11 +159,23 @@ def render_g4(result_list, mode, layout):
         for idx in range(1, len(line)):
             seq = line[idx]
             seq_lists[idx-1].append(seq)
-            if idx in [1,3,4]:
-                ratio = 1. - np.count_nonzero(line[idx]) / len(line[idx])
-                ratio *= 100.
-            else:
-                ratio = np.count_nonzero(line[idx]) / len(line[idx])
+            # if idx in [1,3,4]:
+            #     ratio = 1. - np.count_nonzero(line[idx]) / len(line[idx])
+            #     ratio *= 100.
+            # else:
+            #     ratio = np.count_nonzero(line[idx]) / len(line[idx])
+
+            if idx in [1]:
+                ratio = len(line[idx]) - np.count_nonzero(line[idx]) \
+                        + np.count_nonzero(line[2])
+                ratio = (ratio * 100.)/ len(line[idx])
+            if idx in [3]:
+                ratio = len(line[idx]) - np.count_nonzero(line[idx])
+            if idx in [4]:
+                ratio = len(line[idx]) - np.count_nonzero(line[idx]) \
+                        + np.count_nonzero(line[5])
+                ratio = (ratio * 100.)/ len(line[idx])
+
             ratio_lists[idx-1].append(ratio)
 
 
@@ -662,7 +674,7 @@ if __name__ == "__main__":
         DEBUG_G2_1 = DEBUG_G2_2 = \
         DEBUG_G3_1 = DEBUG_G3_2 = \
         DEBUG_G4_1 = DEBUG_G4_2 = 0
-    DEBUG_G2_1 = 1
+    DEBUG_G4_2 = 1
     # DEBUG_G3_2 = 1
 
     if DEBUG_G1_1:
@@ -744,12 +756,14 @@ if __name__ == "__main__":
     if DEBUG_G4_2:
         path = '../save/'
         names = [
-            's_12_0.3_re_1500_',
             # 's_12_0.3_re_1500_',
-            # 's_12_ave_1500_',
-            's_14_0.3_re_1500_',
-            's_16_0.3_re_1500_',
-            's_18_0.3_re_1500_',
+            # 's_14_0.3_re_1500_',
+            # 's_16_0.3_re_1500_',
+            # 's_18_0.3_re_1500_',
+            's_12_ave_1500_',
+            's_14_ave_1500_',
+            's_16_ave_1500_',
+            's_18_ave_1500_',
         ]
         run_g4(path, names, mode='reward', layout='ratio')
     # name = 's_14_0.3_re_1500_'
