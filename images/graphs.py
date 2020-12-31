@@ -617,9 +617,9 @@ def render_g2_all(dataset, names, line_class, select_J = False):
         ]
         if select_J:
             lg = [
-                'k=500',
-                'k=1000',
-                'k=1500',
+                '$k = 500$',
+                '$k = 1000$',
+                '$k = 1500$',
             ]
         lgs.extend(lg)
 
@@ -633,21 +633,24 @@ def render_g2_all(dataset, names, line_class, select_J = False):
     plot.legend(lgs)
     plot.xticks(np.arange(min(xs), max(xs)+200, 1000), fontsize=12)
     if select_J:
-        plot.yticks(np.arange(min(ys)- offset, max(ys), .2), fontsize=12)
+        plot.yticks(np.arange(min(ys)- offset, math.floor(max(ys))+.2, .2), fontsize=12)
     else:
-        plot.yticks(np.arange(min(ys) - offset, max(ys), .15), fontsize=12)
+        plot.yticks(np.arange(min(ys) - offset, math.floor(max(ys))+.21, .1), fontsize=12)
     #plot.text(max(xs)-.75, min(ys) - .105, '$(\\times 10^3)$', fontsize=12)
     if select_J:
-        plot.text(min(xs), max(ys) + .01, '$(\\times 10^3)$', fontsize=12)
+        plot.text(min(xs), math.floor(max(ys))+.2 + .015, '$(\\times 10^3)$', fontsize=12)
     else:
-        plot.text(min(xs), max(ys)+.02, '$(\\times 10^3)$', fontsize=12)
+        plot.text(min(xs), math.floor(max(ys))+.2 + .01, '$(\\times 10^3)$', fontsize=12)
     plot.grid()
     if select_J:
         plot.xlim([min(xs), max(xs)+100])
     else:
-        plot.xlim([min(xs), max(xs) -2000])
+        plot.xlim([min(xs), max(xs) -3000 +100])
     #plot.ylim([min(ys)- offset, max(ys)+.104])
-    plot.ylim([min(ys)- offset, max(ys)]) #graph2-2
+    if select_J:
+        plot.ylim([min(ys)- offset, math.floor(max(ys))+.2]) #graph2-2
+    else:
+        plot.ylim([min(ys) - offset, math.floor(max(ys))+.2001])  # graph2-2
     if select_J:
         plot.savefig("../images/hhj4-2-1.pdf", dpi=400, bbox_inches='tight', pad_inches=0.1)
     else:
@@ -659,7 +662,7 @@ if __name__ == "__main__":
         DEBUG_G2_1 = DEBUG_G2_2 = \
         DEBUG_G3_1 = DEBUG_G3_2 = \
         DEBUG_G4_1 = DEBUG_G4_2 = 0
-    DEBUG_G4_2 = 1
+    DEBUG_G2_1 = 1
     # DEBUG_G3_2 = 1
 
     if DEBUG_G1_1:
