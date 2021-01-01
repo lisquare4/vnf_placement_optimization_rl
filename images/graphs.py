@@ -1,4 +1,7 @@
 import matplotlib.pyplot as plot
+import matplotlib
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
 plot.rcParams.update({'font.size': 16})
 import numpy as np
 import math
@@ -203,7 +206,7 @@ def render_g4(result_list, mode, layout):
         plot.setp(ax, xlabel=x_lab)
         plot.xticks(fontsize=12)
         plot.yticks(np.arange(0,110,10), fontsize=12)
-        plot.ylim([-2,100])
+        plot.ylim([0,100])
         #plot.xlim([11.5,18])
         #plot.xticks(np.arange(12,18.1,1.), fontsize=12)
         plot.grid()
@@ -676,7 +679,7 @@ if __name__ == "__main__":
         DEBUG_G2_1 = DEBUG_G2_2 = \
         DEBUG_G3_1 = DEBUG_G3_2 = \
         DEBUG_G4_1 = DEBUG_G4_2 = 0
-    DEBUG_G4_2 = 1
+    DEBUG_G1_1 = 1
     # DEBUG_G3_2 = 1
 
     if DEBUG_G1_1:
@@ -775,10 +778,14 @@ if __name__ == "__main__":
             #'s_14_0.3_pe_1500_',
             #'s_16_0.3_pe_1500_',
             #'s_18_0.3_pe_1500_',
-            's_12_ave_1500_',
-            's_14_ave_1500_',
-            's_16_ave_1500_',
-            's_18_ave_1500_',
+            # 's_12_ave_1500_',
+            # 's_14_ave_1500_',
+            # 's_16_ave_1500_',
+            # 's_18_ave_1500_',
+            's_12_ave_1500_no_Solver_',
+            's_14_ave_1500_no_Solver_',
+            's_16_ave_1500_no_Solver_',
+            's_18_ave_1500_no_Solver_',
         ]
         run_g4(path, names, mode='reward', layout='ratio')
     # name = 's_14_0.3_re_1500_'
