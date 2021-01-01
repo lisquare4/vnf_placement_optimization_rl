@@ -57,13 +57,13 @@ cmd = ''
 
 
 def gen_test_cmd():
-    # test_base ="python main.py --learn_mode=False --save_model=False --enable_performance=True "
-    test_base ="python main.py --learn_mode=False --save_model=False --enable_performance=True --solver_on=True "
+    test_base ="python main.py --learn_mode=False --save_model=False --enable_performance=True "
+    # test_base ="python main.py --learn_mode=False --save_model=False --enable_performance=True --solver_on=True "
 
     with open('fl_s_test_script3.txt', 'w') as f:
-        for env_seq in l_env_seqs:
+        for env_seq in s_env_seqs:
             if env_seq != '30':
-                env = "--min_length={} --max_length={} ".format(env_seq, env_seq) + large_env_base
+                env = "--min_length={} --max_length={} ".format(env_seq, env_seq) + small_env_base
             else:
                 env = "--min_length={} --max_length={} ".format(env_seq, env_seq) + l30_env_base
             for it in iters:
@@ -75,7 +75,7 @@ def gen_test_cmd():
                             path_list[0] = 'l'
                             save_path = ''.join(path_list)
                         cmd = test_base + env + \
-                              "--load_from=save_vnf/ll{}b ".format(env_seq) + \
+                              "--load_from=save_vnf/l{}b ".format(env_seq) + \
                               "--fl_load_from=save/{}".format(save_path)
                         f.write(cmd + '\n')
 
@@ -88,7 +88,7 @@ def gen_test_cmd():
                     path_list[0] = 'l'
                     save_path = ''.join(path_list)
                 cmd = test_base + env + \
-                      "--load_from=save_vnf/ll{}b ".format(env_seq) + \
+                      "--load_from=save_vnf/l{}b ".format(env_seq) + \
                       "--fl_load_from=save/{}".format(save_path)
                 f.write(cmd + '\n')
                 f.write('\n')

@@ -667,8 +667,8 @@ def inference(sess, config, env, networkServices, agent, saver):
 
         # Calculate and store the best model
         for batch in range(config.batch_size):
-            index_l = np.argmin([row[batch] for row in lagrangian_m])
-            index_p = np.argmin([row[batch] for row in penalty_m])
+            index_l = np.argmax([row[batch] for row in lagrangian_m])
+            index_p = np.argmax([row[batch] for row in penalty_m])
 
             assert penalty_m[index_l][batch] <= penalty_m[index_p][batch]
 
@@ -682,8 +682,8 @@ def inference(sess, config, env, networkServices, agent, saver):
 
             # Temperature
 
-            index_lt = np.argmin([row[batch] for row in lagrangian_temp_m])
-            index_pt = np.argmin([row[batch] for row in penalty_temp_m])
+            index_lt = np.argmax([row[batch] for row in lagrangian_temp_m])
+            index_pt = np.argmax([row[batch] for row in penalty_temp_m])
 
             best_placement_t.append(placement_temp_m[index_l][batch])
             best_lagrangian_t.append(lagrangian_temp_m[index_l][batch])
