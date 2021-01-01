@@ -617,7 +617,7 @@ def render_g2_all(dataset, names, line_class, select_J = False):
         # lg = [str(n)+ line_class for n in name_range]
         lg = [
             # '0.3 Penalty',
-            'Errer-rate-based strategy',
+            'Error-rate-based strategy',
             # '0.5 Penalty',
             # '0.3 Reward',
             'Reward-based strategy',
@@ -659,7 +659,7 @@ def render_g2_all(dataset, names, line_class, select_J = False):
         plot.xlim([min(xs), max(xs)+100])
     else:
         plot.xlim([min(xs), max(xs) -3000 +100])
-    #plot.ylim([min(ys)- offset, max(ys)+.104])
+        # plot.ylim([min(ys), max(ys)])
     if select_J:
         plot.ylim([min(ys)- offset, math.floor(max(ys))+.2]) #graph2-2
     else:
@@ -709,9 +709,14 @@ if __name__ == "__main__":
             # 'g_0.3_pe_1500_',
             # 'g_0.3_re_1500_',
             # 'g_ave_1500_',
+
             's_18_0.3_pe_1500_',
             's_16_0.3_re_1500_',
             's_18_ave_1500_',
+
+            # 'l_20_0.5_pe_1000_',
+            # 'l_20_0.5_re_1000_',
+            # 'l_20_ave_1000_',
         ])
 
         run_g2_all(path_g2, names_group_g2, mode='reward')
