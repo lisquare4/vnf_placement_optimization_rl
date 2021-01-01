@@ -2,6 +2,7 @@
 small_env = '--min_length=12 --max_length=12 --num_layers=1 --hidden_dim=32 --num_cpus=10 --env_profile="small_default" --num_epoch=10000 '
 big_env = '--min_length=20 --max_length=20 --num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=20000 '
 
+l30_env_base = '--num_layers=4 --hidden_dim=128 --num_cpus=20 --env_profile="large_default" --num_epoch=10000 '
 large_env_base = '--num_layers=3 --hidden_dim=64 --num_cpus=20 --env_profile="large_default" --num_epoch=10000 '
 small_env_base = '--num_layers=1 --hidden_dim=32 --num_cpus=10 --env_profile="small_default" --num_epoch=10000 '
 
@@ -56,11 +57,15 @@ cmd = ''
 
 
 def gen_test_cmd():
-    test_base ="python main.py --learn_mode=False --save_model=False --enable_performance=True "
+    # test_base ="python main.py --learn_mode=False --save_model=False --enable_performance=True "
+    test_base ="python main.py --learn_mode=False --save_model=False --enable_performance=True --solver_on=True "
 
-    with open('fl_s_test_script.txt', 'w') as f:
+    with open('fl_s_test_script3.txt', 'w') as f:
         for env_seq in l_env_seqs:
-            env = "--min_length={} --max_length={} ".format(env_seq, env_seq) + large_env_base
+            if env_seq != '30':
+                env = "--min_length={} --max_length={} ".format(env_seq, env_seq) + large_env_base
+            else:
+                env = "--min_length={} --max_length={} ".format(env_seq, env_seq) + l30_env_base
             for it in iters:
                 for tm in trend_mode:
                     for tc in trend_coef:
@@ -92,7 +97,10 @@ def gen_train_cmd():
 
     with open('fl_script5.txt', 'w') as f:
         for env_seq in l_env_seqs:
-            env = "--min_length={} --max_length={} ".format(env_seq, env_seq) + large_env_base
+            if env_seq != '30':
+                env = "--min_length={} --max_length={} ".format(env_seq, env_seq) + large_env_base
+            else:
+                env = "--min_length={} --max_length={} ".format(env_seq, env_seq) + l30_env_base
             for it in iters:
                 for tm in trend_mode:
                     for tc in trend_coef:
@@ -124,5 +132,5 @@ def gen_train_cmd():
                 f.write(cmd + '\n')
 
 if __name__ == "__main__":
-    gen_train_cmd()
-    # gen_test_cmd()
+    # gen_train_cmd()
+    gen_test_cmd()
