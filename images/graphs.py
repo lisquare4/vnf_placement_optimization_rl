@@ -171,6 +171,7 @@ def render_g4(result_list, mode, layout):
                 ratio = (ratio * 100.)/ len(line[idx])
             if idx in [3]:
                 ratio = len(line[idx]) - np.count_nonzero(line[idx])
+                ratio = (ratio * 100.) / len(line[idx])
             if idx in [4]:
                 ratio = len(line[idx]) - np.count_nonzero(line[idx]) \
                         + np.count_nonzero(line[5])
@@ -675,7 +676,7 @@ if __name__ == "__main__":
         DEBUG_G2_1 = DEBUG_G2_2 = \
         DEBUG_G3_1 = DEBUG_G3_2 = \
         DEBUG_G4_1 = DEBUG_G4_2 = 0
-    DEBUG_G2_2 = 1
+    DEBUG_G4_2 = 1
     # DEBUG_G3_2 = 1
 
     if DEBUG_G1_1:
@@ -766,10 +767,14 @@ if __name__ == "__main__":
     if DEBUG_G4_2:
         path = '../save/'
         names = [
-            # 's_12_0.3_re_1500_',
-            # 's_14_0.3_re_1500_',
-            # 's_16_0.3_re_1500_',
-            # 's_18_0.3_re_1500_',
+            #'s_12_0.3_re_1500_',
+            #'s_14_0.3_re_1500_',
+            #'s_16_0.3_re_1500_',
+            #'s_18_0.3_re_1500_',
+            #'s_12_0.3_pe_1500_',
+            #'s_14_0.3_pe_1500_',
+            #'s_16_0.3_pe_1500_',
+            #'s_18_0.3_pe_1500_',
             's_12_ave_1500_',
             's_14_ave_1500_',
             's_16_ave_1500_',
